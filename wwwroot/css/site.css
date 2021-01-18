@@ -80,7 +80,7 @@ body {
         border: 1px solid grey;
     }
 
-form, button {
+button {
     float: right;
 }
 
@@ -109,4 +109,22 @@ form, button {
 
 .buttonArea {
     width: 100%;
+}
+
+#threatIndicator {
+    float: left;
+}
+
+.threatLow {
+    background-color: #008000;
+    color: white;
+}
+
+.threatModerate {
+    background-color: #ffff00;
+}
+
+.threatHigh {
+    background-color: #ff0000;
+    color: white;
 }
