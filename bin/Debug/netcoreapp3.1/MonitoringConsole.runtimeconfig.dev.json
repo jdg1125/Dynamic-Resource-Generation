@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\JGLASS4\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\JGLASS4\\.nuget\\packages"
+    ]
+  }
+}
