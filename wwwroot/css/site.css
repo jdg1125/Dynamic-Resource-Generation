@@ -122,6 +122,7 @@ button {
 
 .threatModerate {
     background-color: #ffff00;
+    color: black;
 }
 
 .threatHigh {

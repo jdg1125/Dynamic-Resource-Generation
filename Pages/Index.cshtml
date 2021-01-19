@@ -106,6 +106,8 @@
             alert("The workspace has been terminated.");
         }
 
+
+
         //setup
         var setup = document.getElementById("setup");
         setup.addEventListener("click", setupWorkspace);
@@ -154,7 +156,7 @@
         }
 
         function updateDisplay() {
-            if (threatScore >= 0 && threatScore < 50) {
+            if (threatScore < 50) {
                 threatIndicator.innerHTML = " Low";
                 threatIndicator.classList.add("threatLow");
             }
