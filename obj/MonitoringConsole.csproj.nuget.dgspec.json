@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\JGLASS4\\source\\repos\\MonitoringConsole\\MonitoringConsole.csproj": {}
+    "C:\\Users\\Justin Deshong\\Desktop\\AMC\\MonitoringConsole\\MonitoringConsole.csproj": {}
   },
   "projects": {
-    "C:\\Users\\JGLASS4\\source\\repos\\MonitoringConsole\\MonitoringConsole.csproj": {
+    "C:\\Users\\Justin Deshong\\Desktop\\AMC\\MonitoringConsole\\MonitoringConsole.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\JGLASS4\\source\\repos\\MonitoringConsole\\MonitoringConsole.csproj",
+        "projectUniqueName": "C:\\Users\\Justin Deshong\\Desktop\\AMC\\MonitoringConsole\\MonitoringConsole.csproj",
         "projectName": "MonitoringConsole",
-        "projectPath": "C:\\Users\\JGLASS4\\source\\repos\\MonitoringConsole\\MonitoringConsole.csproj",
-        "packagesPath": "C:\\Users\\JGLASS4\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\JGLASS4\\source\\repos\\MonitoringConsole\\obj\\",
+        "projectPath": "C:\\Users\\Justin Deshong\\Desktop\\AMC\\MonitoringConsole\\MonitoringConsole.csproj",
+        "packagesPath": "C:\\Users\\Justin Deshong\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Justin Deshong\\Desktop\\AMC\\MonitoringConsole\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\JGLASS4\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Justin Deshong\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
