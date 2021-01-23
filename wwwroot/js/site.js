@@ -147,7 +147,7 @@ var determineThreat = function (s) {
         let sub = s;
         let index;
 
-        while (threatScore < 100 && ((index = sub.indexOf("cd ")) >= 0)) {
+        while (threatScore < 200 && ((index = sub.indexOf("cd ") >= 0 || sub.indexOf("dir") >= 0))) {
             threatScore += (threatScore >= 50) ? 5 : 1;
             sub = sub.substring(index + 3);
         }
@@ -163,15 +163,30 @@ function updateThreatLevel() {
         threatIndicator.classList.add("threatLow");
     }
     else if (threatScore < 100) {
+        threatIndicator.innerHTML = " Elevated";
+        threatIndicator.classList.remove("threatLow");
+        threatIndicator.classList.add("threatElevated");
+    }
+    else if (threatScore < 150) {
         threatIndicator.innerHTML = " Moderate";
         threatIndicator.classList.remove("threatLow");
+        threatIndicator.classList.remove("threatElevated");
         threatIndicator.classList.add("threatModerate");
     }
-    else {
+    else if (threatScore < 200) {
         threatIndicator.innerHTML = " High";
         threatIndicator.classList.remove("threatLow");
+        threatIndicator.classList.remove("threatElevated");
         threatIndicator.classList.remove("threatModerate");
         threatIndicator.classList.add("threatHigh");
+    }
+    else {
+        threatIndicator.innerHTML = " Critical";
+        threatIndicator.classList.remove("threatLow");
+        threatIndicator.classList.remove("threatElevated");
+        threatIndicator.classList.remove("threatModerate");
+        threatIndicator.classList.remove("threatHigh");
+        threatIndicator.classList.add("threatCritical");
     }
 
     console.log(threatIndicator.innerHTML);

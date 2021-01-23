@@ -120,6 +120,11 @@ button {
     color: white;
 }
 
+.threatElevated {
+    background-color: greenyellow;
+    color: black;
+}
+
 .threatModerate {
     background-color: #ffff00;
     color: black;
@@ -127,5 +132,10 @@ button {
 
 .threatHigh {
     background-color: #ff0000;
+    color: white;
+}
+
+.threatCritical {
+    background-color: black;
     color: white;
 }
