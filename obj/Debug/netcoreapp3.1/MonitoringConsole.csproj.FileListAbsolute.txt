@@ -352,3 +352,4 @@ C:\Users\JGLASS4\source\repos\MonitoringConsole\obj\Debug\netcoreapp3.1\Monitori
 C:\Users\JGLASS4\source\repos\MonitoringConsole\obj\Debug\netcoreapp3.1\MonitoringConsole.pdb
 C:\Users\JGLASS4\source\repos\MonitoringConsole\obj\Debug\netcoreapp3.1\MonitoringConsole.genruntimeconfig.cache
 C:\Users\JGLASS4\source\repos\MonitoringConsole\bin\Debug\netcoreapp3.1\create-workspace.json
+C:\Users\JGLASS4\source\repos\MonitoringConsole\bin\Debug\netcoreapp3.1\dbEntry.json

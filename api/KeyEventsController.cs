@@ -61,7 +61,7 @@ namespace CreateWorkspaceDemo.api
 
                     _messages.Add(text); //if a multipart message is seen that isn't from AWS SES, count the message, but don't bother capturing it
                 }
-                else 
+                else
                 {
                     string text = message.MessagePart.GetBodyAsText();
                     if (text != null)
@@ -135,7 +135,14 @@ namespace CreateWorkspaceDemo.api
                                 sb.Append(sub);
                             else if (sub == "[ENTER]")
                             {
-                                CommandsEntered.Add(sb.ToString());
+                                string draft = sb.ToString();
+                                int index;
+                                if ((index = draft.IndexOf('\r')) >= 0 && index + 1 < draft.Length) 
+                                    draft = draft.Substring(index + 1);
+                                if ((index = draft.IndexOf('\n')) >= 0 && index + 1 < draft.Length)
+                                    draft = draft.Substring(index + 1);
+
+                                CommandsEntered.Add(draft);
                                 sb.Clear();
                             }
 

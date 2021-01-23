@@ -10,4 +10,6 @@
     <PackageReference Include="OpenPop.NET" Version="2.0.6.1120" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties dbentry_1json__JsonSchema="https://bitbucket.org/finproducts/hayson/raw/master/hayson-json-schema.json" /></VisualStudio></ProjectExtensions>
+
 </Project>
