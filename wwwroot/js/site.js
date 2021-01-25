@@ -21,8 +21,10 @@ var populateDisplay = async function () {
 var renderTable = function (data) {
     let keystrokes = data[0];
     let times = data[1];
-    //if rowCount == 1 && data[0].length == false:
-            // StartTime = (data[1][0]) //first email
+    if (rowCount == 1 && data[0].length == false) {
+        StartTime = (data[1][0]);
+    }
+            
     
     for (let i = 0; i < data[0].length; i++) {
         if (data[0][i] != "") {
@@ -146,7 +148,7 @@ var threatScore = 0;
 var threatIndicator = document.getElementById("threatLevel");
 
 var determineThreat = function (s) {
-    if (threatScore < 100) {
+    if (threatScore < 300) {
         if (s.indexOf("powershell") >= 0)
             threatScore += 100;
 
@@ -162,9 +164,9 @@ var determineThreat = function (s) {
             threatScore += (threatScore >= 50) ? 5 : 1;
             sub = sub.substring(index + 3);
         }
-        //var RowPoints = StartTime Row - Recent Row /2
-        //threatScore += RowPoints
-        console.log(threatScore);
+        var RowPoints = rowCount/2; //1 point for every minute in the environment; Need to add row of StartTime
+        threatScore += RowPoints;
+        console.log("Threat Score = " + threatScore);
         updateThreatLevel();
     }
 }
