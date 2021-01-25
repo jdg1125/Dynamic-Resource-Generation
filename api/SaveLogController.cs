@@ -24,9 +24,12 @@ namespace MonitoringConsole.api
         {
             attackData.KeyStrokes = CommandsEntered;
 
-            string fileName = Environment.CurrentDirectory + "\\dbEntry.json";
+            StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
+            fileName.Append("\\log_");
+            fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            fileName.Append(".json");
 
-            using (FileStream createStream = System.IO.File.Create(fileName))
+            using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
             {
                 await JsonSerializer.SerializeAsync(createStream, attackData);
             }
