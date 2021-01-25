@@ -6,6 +6,7 @@ var attackData = {
     userName: "",
     workSpaceId: ""
 };
+var StartTime = new Date();
 
 var populateDisplay = async function () {
     let url = '../../api/KeyEvents/' + rowCount; //rowCount;
@@ -20,6 +21,11 @@ var populateDisplay = async function () {
 var renderTable = function (data) {
     let keystrokes = data[0];
     let times = data[1];
+    if (rowCount == 1 && data[0].length == false) {
+        StartTime = (data[1][0]);
+    }
+            
+    
     for (let i = 0; i < data[0].length; i++) {
         if (data[0][i] != "") {
             let row = document.createElement("tr");
@@ -33,8 +39,10 @@ var renderTable = function (data) {
             placeToInsert.append(row);
         }
     }
+    
     rowCount += data[0].length;
-    console.log(rowCount);
+    
+    console.log("Number of emails = " + rowCount);
 }
 
 var parseMessage = function (msg) {
@@ -140,19 +148,25 @@ var threatScore = 0;
 var threatIndicator = document.getElementById("threatLevel");
 
 var determineThreat = function (s) {
-    if (threatScore < 100) {
+    if (threatScore < 300) {
         if (s.indexOf("powershell") >= 0)
             threatScore += 100;
 
         let sub = s;
         let index;
 
-        while (threatScore < 200 && ((index = sub.indexOf("cd ") >= 0 || sub.indexOf("dir") >= 0))) {
+        while (threatScore < 200 && (index = sub.indexOf("cd ")) >= 0) {
             threatScore += (threatScore >= 50) ? 5 : 1;
             sub = sub.substring(index + 3);
         }
 
-        console.log(threatScore);
+        while (threatScore < 200 && (index = sub.indexOf("dir")) >= 0) {
+            threatScore += (threatScore >= 50) ? 5 : 1;
+            sub = sub.substring(index + 3);
+        }
+        var RowPoints = rowCount/2; //1 point for every minute in the environment; Need to add row of StartTime
+        threatScore += RowPoints;
+        console.log("Threat Score = " + threatScore);
         updateThreatLevel();
     }
 }
@@ -189,5 +203,5 @@ function updateThreatLevel() {
         threatIndicator.classList.add("threatCritical");
     }
 
-    console.log(threatIndicator.innerHTML);
+    console.log("threat level = " + threatIndicator.innerHTML);
 }
