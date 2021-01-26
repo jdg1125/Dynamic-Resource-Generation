@@ -82,7 +82,7 @@ namespace CreateWorkspaceDemo.api
                     }
                 }
 
-                _times.Add(message.Headers.DateSent.ToLocalTime().ToString("g"));
+                _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
             }
 
             List<List<string>> result = new List<List<string>>();
