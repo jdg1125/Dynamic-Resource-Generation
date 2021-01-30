@@ -8,12 +8,12 @@ var attackData = {
 };
 
 var attacker = {
-    ip: "",
+    _id: "",
+    ipList: [],
     name: "",
-    location: "",
-    prevEncounters: "",
+    //location: "",
     prevMaxThreatLevel: "",
-    activities: []
+    attacks: []
 };
 
 var startTime;
@@ -64,11 +64,11 @@ function getAttackerInfo(msg) {
         fetch(url)
             .then(data => data.json())
             .then(data => {
+                attacker._id = data._id;
                 attacker.name = data.name;
-                attacker.location = data.location;
-                attacker.prevEncounters = data.prevEncounters;
+                attacker.ipList = data.ipList
                 attacker.prevMaxThreatLevel = data.prevMaxThreatLevel;
-                attacker.activities = data.activities;
+                attacker.attacks = data.attacks;
             })
             .then(() => initThreatScore())
             .catch(() => alert("Fetching info about attacker failed"));
@@ -169,12 +169,7 @@ var threatIndicator = document.getElementById("threatLevel");
 
 function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
-    if (attacker.prevEncounters >= 2)
-        threatScore += 50;
-    //location?
-    //name?
-    //activities?
-
+    console.log("initThreatScore: " + threatScore);
     updateThreatLevel();
 }
 
