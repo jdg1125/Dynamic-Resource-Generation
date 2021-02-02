@@ -8,6 +8,7 @@ using System.Text;
 using System.IO;
 using MonitoringConsole.Class_Library;
 using MonitoringConsole.Services;
+using MongoDB.Bson;
 using static MonitoringConsole.Data.AttackData;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -54,17 +55,41 @@ namespace MonitoringConsole.api
              {
                  await JsonSerializer.SerializeAsync(createStream, attackData);
              }*/
+            
+            
+            if (attackData.AttackerId == null || attackData.AttackerId == "")
+            {
+                Attacker attacker = new Attacker();
+                attacker.IPList.Add(new IP()
+                {
+                    Address = attackData.AttackerIP
+                });
+                attacker.PrevMaxThreatLevel = -1;
+                
+                attacker._id = await _context.AddAttacker(attacker);
+                attackData.AttackerId = attacker._id.ToString();
+            }
+            else
+            {
+                await _context.UpdateAttacker(new ObjectId(attackData.AttackerId), -2);
+            }
 
-            Attacker attacker = new Attacker();
-            attacker.IPList.Add(new IP() 
-            { 
-                Address = attackData.AttackerIP 
-            });
-            attacker.PrevMaxThreatLevel = 300;
+            Attack attack = new Attack()
+            {
+                Start_Time = attackData.StartTime,
+                End_Time = attackData.EndTime,
+                CostScore = 1.0m,
+                Threat_Level = attackData.PrevMaxThreatLevel,
+                AttackerId = new ObjectId(attackData.AttackerId)
+            };
 
-            await _context.AddAttacker(attacker);
+            attack.Workspaces_Involved.Add(attackData.WorkspaceId);
+            attack._id = await _context.AddAttack(attack);
+            attackData.AttackId = attack._id.ToString();
 
             return attackData;
+
+            //update attack if exists
         }
 
         // PUT api/<DBController>/5

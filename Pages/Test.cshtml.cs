@@ -17,7 +17,7 @@ namespace MonitoringConsole.Pages
         }
         public async Task<IActionResult> OnGet()
         {
-            Schema = await _context.GetDatabasesAndCollections();
+           // Schema = await _context.GetDatabasesAndCollections();
             return Page();
         }
     }

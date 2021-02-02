@@ -8,14 +8,15 @@ var attackData = {
 };
 
 var attacker = {
-    _id: "",
+    _id: {},
+    IdAsString: "",
     ipList: [],
     name: "",
-    //location: "",
     prevMaxThreatLevel: "",
     attacks: []
 };
 
+var attackId = "";
 var startTime;
 
 async function getKeyloggerData() {
@@ -65,6 +66,7 @@ function getAttackerInfo(msg) {
             .then(data => data.json())
             .then(data => {
                 attacker._id = data._id;
+                attacker.IdAsString = data.idAsString;
                 attacker.name = data.name;
                 attacker.ipList = data.ipList
                 attacker.prevMaxThreatLevel = data.prevMaxThreatLevel;
@@ -116,21 +118,39 @@ saveLog.addEventListener("click", saveAttackLog);
 
 function saveAttackLog() {
     let url = '../../api/DB/';
+
+    let endTime = new Date();
+    let date = endTime.getFullYear() + '-' + (endTime.getMonth() + 1) + '-' + endTime.getDate();
+    let time = endTime.getHours() + ":" + endTime.getMinutes() + ":" + endTime.getSeconds();
+
+    endTime = new Date(date + ' ' + time);
+
     let paramObj = {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
+        body: JSON.stringify({    
             Username: attackData.userName,
             AttackerIP: attackData.attackerIP,
             WorkspaceId: attackData.workSpaceId,
+            PrevMaxThreatLevel: threatScore,
+            AttackerId: attacker.IdAsString,
+            AttackId: attackId,
+            StartTime: startTime,
+            EndTime: endTime,
             Keystrokes: []
         })
     };
 
     fetch(url, paramObj)
         .then(data => data.json())
+        .then((data) => {
+            attackId = data.attackId;
+            attacker.idAsString = data.attackerId;
+            //console.log(attackId);
+            return data;
+        })
         .then(data => JSON.stringify(data))
         .then(data => alert(data))
         .catch(() => alert("Saving attack log failed"));
