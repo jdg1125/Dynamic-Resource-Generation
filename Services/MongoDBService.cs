@@ -67,5 +67,23 @@ namespace MonitoringConsole.Services
             return (ObjectId)value.GetValue(0);
 
         }
+
+        public async Task UpdateAttack(AttackLog attacklog)
+        {
+            IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackId));
+            var update = Builders<BsonDocument>.Update.Set("End_Time", attacklog.EndTime)
+            .Set("Threat_Level", attacklog.PrevMaxThreatLevel);
+            await collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task LinkAttack(AttackLog attacklog)
+        {
+            IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attacker");
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackerId));
+            var update = Builders<BsonDocument>.Update.Push("Attacks", new ObjectId(attacklog.AttackId));
+            await collection.UpdateOneAsync(filter, update);
+
+        }
     }
 }

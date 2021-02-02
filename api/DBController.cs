@@ -73,19 +73,31 @@ namespace MonitoringConsole.api
             {
                 await _context.UpdateAttacker(new ObjectId(attackData.AttackerId), -2);
             }
-
-            Attack attack = new Attack()
+            
+            if(attackData.AttackId == null || attackData.AttackId == "")
             {
-                Start_Time = attackData.StartTime,
-                End_Time = attackData.EndTime,
-                CostScore = 1.0m,
-                Threat_Level = attackData.PrevMaxThreatLevel,
-                AttackerId = new ObjectId(attackData.AttackerId)
-            };
+                Attack attack = new Attack()
+                {
+                    Start_Time = attackData.StartTime,
+                    End_Time = attackData.EndTime,
+                    CostScore = 1.0m,
+                    Threat_Level = attackData.PrevMaxThreatLevel,
+                    AttackerId = new ObjectId(attackData.AttackerId)
+                    
+                 };
+                attack.Workspaces_Involved.Add(attackData.WorkspaceId);
+                attack._id = await _context.AddAttack(attack);
+                attackData.AttackId = attack._id.ToString();
+            }
+            else
+            {
+                await _context.UpdateAttack(attackData);
+            }
 
-            attack.Workspaces_Involved.Add(attackData.WorkspaceId);
-            attack._id = await _context.AddAttack(attack);
-            attackData.AttackId = attack._id.ToString();
+            await _context.LinkAttack(attackData);
+            
+
+            
 
             return attackData;
 
