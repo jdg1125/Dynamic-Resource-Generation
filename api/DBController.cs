@@ -44,19 +44,27 @@ namespace MonitoringConsole.api
         [HttpPost]
         public async Task<AttackLog> Post([FromBody] AttackLog attackData)
         {
-            /* attackData.KeyStrokes = CommandsEntered;
+            List<string> CmdsSinceLastSave = new List<string>();
 
-             StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
-             fileName.Append("\\log_");
-             fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-             fileName.Append(".json");
+            if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
+            {
+                CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
+                CurrLine = CommandsEntered.Count;
+            }
 
-             using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
-             {
-                 await JsonSerializer.SerializeAsync(createStream, attackData);
-             }*/
-            
-            
+            attackData.KeyStrokes = CmdsSinceLastSave;
+
+            StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
+            fileName.Append("\\log_");
+            fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            fileName.Append(".json");
+
+            using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
+            {
+                await JsonSerializer.SerializeAsync(createStream, attackData);
+            }
+
+
             if (attackData.AttackerId == null || attackData.AttackerId == "")
             {
                 Attacker attacker = new Attacker();
@@ -64,17 +72,17 @@ namespace MonitoringConsole.api
                 {
                     Address = attackData.AttackerIP
                 });
-                attacker.PrevMaxThreatLevel = -1;
-                
+                attacker.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
+
                 attacker._id = await _context.AddAttacker(attacker);
                 attackData.AttackerId = attacker._id.ToString();
             }
             else
             {
-                await _context.UpdateAttacker(new ObjectId(attackData.AttackerId), -2);
+                await _context.UpdateAttacker(new ObjectId(attackData.AttackerId), attackData.PrevMaxThreatLevel);
             }
-            
-            if(attackData.AttackId == null || attackData.AttackId == "")
+
+            if (attackData.AttackId == null || attackData.AttackId == "")
             {
                 Attack attack = new Attack()
                 {
@@ -83,25 +91,21 @@ namespace MonitoringConsole.api
                     CostScore = 1.0m,
                     Threat_Level = attackData.PrevMaxThreatLevel,
                     AttackerId = new ObjectId(attackData.AttackerId)
-                    
-                 };
+
+                };
                 attack.Workspaces_Involved.Add(attackData.WorkspaceId);
                 attack._id = await _context.AddAttack(attack);
                 attackData.AttackId = attack._id.ToString();
+
+                await _context.LinkAttack(attackData);
+
             }
             else
             {
                 await _context.UpdateAttack(attackData);
             }
 
-            await _context.LinkAttack(attackData);
-            
-
-            
-
             return attackData;
-
-            //update attack if exists
         }
 
         // PUT api/<DBController>/5

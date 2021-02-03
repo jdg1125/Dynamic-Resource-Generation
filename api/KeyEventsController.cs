@@ -137,12 +137,13 @@ namespace CreateWorkspaceDemo.api
                             {
                                 string draft = sb.ToString();
                                 int index;
-                                if ((index = draft.IndexOf('\r')) >= 0 && index + 1 < draft.Length) 
+                                if ((index = draft.IndexOf('\r')) >= 0 && index + 1 < draft.Length)
                                     draft = draft.Substring(index + 1);
                                 if ((index = draft.IndexOf('\n')) >= 0 && index + 1 < draft.Length)
                                     draft = draft.Substring(index + 1);
 
-                                CommandsEntered.Add(draft);
+                                if (draft != "" && draft != "\n")
+                                    CommandsEntered.Add(draft);
                                 sb.Clear();
                             }
 
