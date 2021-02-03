@@ -158,6 +158,7 @@ function saveAttackLog() {
     //save attacker data - if attacker known, update threat score and increment prevEncounters. else, create new entry
 }
 
+
 //setup
 var setup = document.getElementById("setup");
 setup.addEventListener("click", setupWorkspace);
@@ -216,10 +217,10 @@ function determineThreat(s, t) {
     threatScore += RowPoints;
 
     //increase threat score as time elapses
-    let currTime = new Date(t);
-    let timeElapsed = currTime.getTime() / 1000 - lastTimeSeen;
-    lastTimeSeen = currTime.getTime() / 1000;
-    threatScore += timeElapsed / 360; 
+    //let currTime = new Date(t);
+    //let timeElapsed = currTime.getTime() / 1000 - lastTimeSeen;
+    //lastTimeSeen = currTime.getTime() / 1000;
+    //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
     updateThreatLevel();
