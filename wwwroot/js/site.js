@@ -1,6 +1,7 @@
 ﻿//display keylogger data
 var placeToInsert = document.getElementById("placeToInsert");
 var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
+
 var attackData = {
     attackerIP: "",
     userName: "",
@@ -9,7 +10,7 @@ var attackData = {
 
 var attacker = {
     _id: {},
-    IdAsString: "",
+    idAsString: "",
     ipList: [],
     name: "",
     prevMaxThreatLevel: "",
@@ -135,7 +136,7 @@ function saveAttackLog() {
             AttackerIP: attackData.attackerIP,
             WorkspaceId: attackData.workSpaceId,
             PrevMaxThreatLevel: threatScore,
-            AttackerId: attacker.IdAsString,
+            AttackerId: attacker.idAsString,
             AttackId: attackId,
             StartTime: startTime,
             EndTime: endTime,
@@ -148,7 +149,7 @@ function saveAttackLog() {
         .then((data) => {
             attackId = data.attackId;
             attacker.idAsString = data.attackerId;
-            //console.log(attackId);
+            alert(attacker.idAsString);
             return data;
         })
         .then(data => JSON.stringify(data))
@@ -190,6 +191,7 @@ var threatIndicator = document.getElementById("threatLevel");
 
 function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
+    console.log(JSON.stringify(attacker))
     console.log("initThreatScore: " + threatScore);
     updateThreatLevel();
 }
