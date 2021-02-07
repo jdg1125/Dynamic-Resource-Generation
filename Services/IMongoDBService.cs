@@ -17,8 +17,8 @@ namespace MonitoringConsole.Services
 
         public Task<ObjectId> AddAttack(Attack attack);
 
-        public Task UpdateAttack(AttackLog attacklog);
+        public Task UpdateAttack(State attacklog);
 
-        public Task LinkAttack(AttackLog attacklog);
+        public Task LinkAttack(State attacklog);
     }
 }
