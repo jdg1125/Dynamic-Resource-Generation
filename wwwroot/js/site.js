@@ -1,8 +1,4 @@
-﻿//display keylogger data
-var placeToInsert = document.getElementById("placeToInsert");
-var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
-
-var attackData = {
+﻿var attackData = {
     attackerIP: "",
     userName: "",
     workSpaceId: ""
@@ -19,16 +15,38 @@ var attacker = {
 
 var attackId = "";
 var startTime;
+var isAttribCheckFinished = false;
 
-async function getKeyloggerData() {
-    let url = '../../api/KeyEvents/' + rowCount;
-    await fetch(url)
-        .then(data => data.json())
-        .then(data => processKeylogs(data))
-        .catch(() => alert("Failure in populateDisplay()"));
+var placeToInsert = document.getElementById("placeToInsert");
+var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
 
-    setTimeout(getKeyloggerData, 5000);
+//main looping routine:
+var main = getKeyloggerData();
+main();
+
+function getKeyloggerData() {
+    let count = 0;
+
+    return async function () {
+        let url = '../../api/KeyEvents/' + rowCount;
+        await fetch(url)
+            .then(data => data.json())
+            .then(data => {
+                processKeylogs(data);
+            })
+            .then(() => {
+                console.log(count);
+                if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
+                    saveAttackLog();
+                if (isAttribCheckFinished)
+                    count++;
+            })
+            .catch(() => alert("Failure in populateDisplay()"));
+
+        setTimeout(main, 10000);
+    };
 };
+
 
 function processKeylogs(data) {
     if (rowCount == 1 && data[0].length > 0) {
@@ -67,14 +85,21 @@ function getAttackerInfo(msg) {
             .then(data => data.json())
             .then(data => {
                 attacker._id = data._id;
-                attacker.IdAsString = data.idAsString;
+                attacker.idAsString = data.idAsString;
                 attacker.name = data.name;
                 attacker.ipList = data.ipList
                 attacker.prevMaxThreatLevel = data.prevMaxThreatLevel;
                 attacker.attacks = data.attacks;
             })
-            .then(() => initThreatScore())
-            .catch(() => alert("Fetching info about attacker failed"));
+            .then(() => { console.log("in getAttacker " + JSON.stringify(attacker)) })
+            .then(() => {
+                initThreatScore();
+                isAttribCheckFinished = true;
+            })
+            .catch(() => {
+                alert("Attacker with IP address " + attacker.ip + " is unknown.");
+                isAttribCheckFinished = true;
+            });
     }
 }
 
@@ -87,7 +112,6 @@ function renderTable(notification, timeStamp) {
     placeToInsert.append(row);
 }
 
-getKeyloggerData();
 
 //terminate
 var terminate_bttn = document.getElementById("terminate");
@@ -110,7 +134,8 @@ function terminateWorkspace() {
     fetch(url, paramObj)
         .then(data => data.json())
         .then(data => JSON.stringify(data))
-        .then(data => alert(data));
+        .then(data => alert(data))
+        .then(saveAttackLog);
 }
 
 //saveLog
@@ -118,6 +143,9 @@ var saveLog = document.getElementById("saveLog");
 saveLog.addEventListener("click", saveAttackLog);
 
 function saveAttackLog() {
+    console.log("in SAVE LOG\n" + JSON.stringify(attacker));
+
+
     let url = '../../api/DB/';
 
     let endTime = new Date();
@@ -131,7 +159,7 @@ function saveAttackLog() {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({    
+        body: JSON.stringify({
             Username: attackData.userName,
             AttackerIP: attackData.attackerIP,
             WorkspaceId: attackData.workSpaceId,
@@ -156,7 +184,6 @@ function saveAttackLog() {
         .then(data => alert(data))
         .catch(() => alert("Saving attack log failed"));
 
-    //save attacker data - if attacker known, update threat score and increment prevEncounters. else, create new entry
 }
 
 
@@ -191,7 +218,7 @@ var threatIndicator = document.getElementById("threatLevel");
 
 function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
-    console.log(JSON.stringify(attacker))
+    console.log("in initThreatScore: " + JSON.stringify(attacker))
     console.log("initThreatScore: " + threatScore);
     updateThreatLevel();
 }

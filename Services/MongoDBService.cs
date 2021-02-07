@@ -68,7 +68,7 @@ namespace MonitoringConsole.Services
 
         }
 
-        public async Task UpdateAttack(AttackLog attacklog)
+        public async Task UpdateAttack(State attacklog)
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
             var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackId));
@@ -77,7 +77,7 @@ namespace MonitoringConsole.Services
             await collection.UpdateOneAsync(filter, update);
         }
 
-        public async Task LinkAttack(AttackLog attacklog)
+        public async Task LinkAttack(State attacklog)
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attacker");
             var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackerId));

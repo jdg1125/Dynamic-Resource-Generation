@@ -25,13 +25,6 @@ namespace MonitoringConsole.api
             _context = context;
         }
 
-        // GET: api/<DBController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
         // GET api/<DBController>/"222.111.22.11"
         [HttpGet("{id}")]
         public async Task<Attacker> Get(string id)
@@ -42,28 +35,9 @@ namespace MonitoringConsole.api
 
         // POST api/<DBController>
         [HttpPost]
-        public async Task<AttackLog> Post([FromBody] AttackLog attackData)
+        public async Task<State> Post([FromBody] State attackData)
         {
-            List<string> CmdsSinceLastSave = new List<string>();
-
-            if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
-            {
-                CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
-                CurrLine = CommandsEntered.Count;
-            }
-
-            attackData.KeyStrokes = CmdsSinceLastSave;
-
-            StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
-            fileName.Append("\\log_");
-            fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-            fileName.Append(".json");
-
-            using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
-            {
-                await JsonSerializer.SerializeAsync(createStream, attackData);
-            }
-
+            await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes
 
             if (attackData.AttackerId == null || attackData.AttackerId == "")
             {
@@ -108,6 +82,40 @@ namespace MonitoringConsole.api
             return attackData;
         }
 
+        private async Task SaveKeylogs(State attackData)
+        {
+            List<string> CmdsSinceLastSave = new List<string>();
+
+            if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
+            {
+                CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
+                CurrLine = CommandsEntered.Count;
+            }
+
+            attackData.KeyStrokes = CmdsSinceLastSave;
+
+            if (CmdsSinceLastSave.Count > 0)
+            {
+
+                StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
+                fileName.Append("\\Data\\Keylogs\\log_");
+                fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+                fileName.Append(".json");
+
+                using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
+                {
+                    await JsonSerializer.SerializeAsync(createStream, attackData);
+                }
+            }
+        }
+
+        // GET: api/<DBController>
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
+
         // PUT api/<DBController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
@@ -119,5 +127,6 @@ namespace MonitoringConsole.api
         public void Delete(int id)
         {
         }
+
     }
 }

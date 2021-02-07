@@ -6,7 +6,7 @@ using MongoDB.Bson;
 
 namespace MonitoringConsole.Class_Library
 {
-    public class AttackLog
+    public class State
     {
         public string Username { get; set; }
         public string AttackerIP { get; set; }
