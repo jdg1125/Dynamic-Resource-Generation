@@ -116,6 +116,7 @@ function renderTable(notification, timeStamp) {
 //terminate
 var terminate_bttn = document.getElementById("terminate");
 terminate_bttn.addEventListener("click", terminateWorkspace);
+terminate_bttn.addEventListener("click", togglePopup);
 
 function terminateWorkspace() {
     let url = '../../api/TerminateWorkspace/';
@@ -288,4 +289,9 @@ function updateThreatLevel() {
     }
 
     console.log("threat level = " + threatIndicator.innerHTML);
+}
+
+// popup function (terminate)
+function togglePopup() {
+    document.getElementById("popup_terminate").classList.toggle("active");
 }
