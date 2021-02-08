@@ -22,6 +22,13 @@ namespace CreateWorkspaceDemo.api
         public List<List<string>> Get(int id)
         {
 
+            if(id==1) //empty buffer and keylog "cache" when browser refreshes
+            {
+                Overflow = "";
+                CommandsEntered.Clear();
+                CurrLine = 0;
+            }
+
             var client = new Pop3Client();
             try
             {
