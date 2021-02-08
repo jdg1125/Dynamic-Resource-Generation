@@ -1,0 +1,50 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+<div class="wrap">
+<br />
+<br />
+<h1>Attack Monitoring Console</h1>
+<br />
+<br />
+<div class="buttonArea">
+    <button id="setup">Set up workspace</button>
+    <button id="saveLog">Save Log</button>
+    <button id="terminate">Terminate Environment</button>
+
+    <div id="threatIndicator"><h4>Threat Level Indicator: <span id="threatLevel"></span></h4></div>
+</div>
+
+<div class="monitorSpace">
+    <table id="displayArea">
+        <thead>
+            <tr>
+                <th>Notifications</th>
+                <th>Date/time logged</th>
+                <th>Workspace owner</th>
+                <th>Workspace Id</th>
+                <th>Attacker IP</th>
+            </tr>
+        </thead>
+        <tbody id="placeToInsert">
+        </tbody>
+
+    </table>
+</div>
+</div>
+
+<div class="popup" id="popup_terminate">
+    <div class="overlay"></div>
+    <div class="content">
+        <div class="close-btn" onclick="togglePopup()">&times;</div>
+        <p>The environment has been terminated.</p>
+    </div>
+</div>
+
+
+@section Scripts
+{
+  
+}
