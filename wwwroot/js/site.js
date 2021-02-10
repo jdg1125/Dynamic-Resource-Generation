@@ -25,7 +25,7 @@ var main = getKeyloggerData();
 main();
 
 function getKeyloggerData() {
-    let count = 5;
+    let count = 0;
 
     return async function () {
         let url = '../../api/KeyEvents/' + rowCount;
@@ -36,7 +36,7 @@ function getKeyloggerData() {
             })
             .then(() => {
                 console.log(count);
-                if (isAttribCheckFinished &&  !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
+                if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
                     saveAttackLog();
                 if (isAttribCheckFinished)
                     count++;

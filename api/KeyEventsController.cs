@@ -34,7 +34,7 @@ namespace CreateWorkspaceDemo.api
             try
             {
                 client.Connect("pop.gmail.com", 995, true);
-                client.Authenticate("josephdavidglassjr@gmail.com", "ThisIs@Password");
+                client.Authenticate("", "");
             }
             catch (OpenPop.Pop3.Exceptions.InvalidLoginException e)
             {
