@@ -97,18 +97,19 @@ button {
 }
 
 #terminate {
-    background-color: darkred;
+    background-color: darkgray;
     color: white;
     margin-right: 50px;
 }
 
 #setup {
-    background-color: darkblue;
+    background-color: darkgray;
     color: white;
 }
 
 #saveLog {
-    background-color: gold;
+    background-color: darkgray;
+    color: white;
     margin-right: 50px;
 }
 
