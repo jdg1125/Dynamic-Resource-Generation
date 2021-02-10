@@ -10,6 +10,7 @@ namespace MonitoringConsole.Data
         public static List<string> CommandsEntered = new List<string>();
         public static string Overflow = "";
         public static int CurrLine = 0;
+        public static string LogFileName = "";
         public static HashSet<string> IgnoredKeys = new HashSet<string>()
         {
             "[ALT]", "[RIGHT_ALT]", "[CTRL]", "[RIGHT_CTRL]", "[SHIFT]", "[PAUSE]", "[RIGHT_SHIFT]",

@@ -27,6 +27,7 @@ namespace CreateWorkspaceDemo.api
                 Overflow = "";
                 CommandsEntered.Clear();
                 CurrLine = 0;
+                LogFileName = "";
             }
 
             var client = new Pop3Client();
