@@ -14,21 +14,35 @@ var attacker = {
 };
 
 var attackId = "";
-var startTime;
+var startTime = null;
 var isAttribCheckFinished = false;
 
 var placeToInsert = document.getElementById("placeToInsert");
 var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
 
-//main looping routine:
-var main = getKeyloggerData();
-main();
+//refresh server's "cache" of commands on refresh or on new attack
 
-function getKeyloggerData() {
+function refreshServerState() {
+    let url = "../../api/KeyEvents";
+    let paramObj = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    };
+
+    fetch(url, paramObj)
+        .then(() => alert("Server state has been refreshed"))
+        .catch(() => alert("Failed to refresh server state"));
+}
+
+//main looping routine:
+
+var getKeyloggerData = (function () {
     let count = 0;
 
     return async function () {
-        let url = '../../api/KeyEvents/' + rowCount;
+        let url = '../../api/KeyEvents/'; //+ rowCount;
         await fetch(url)
             .then(data => data.json())
             .then(data => {
@@ -43,13 +57,16 @@ function getKeyloggerData() {
             })
             .catch(() => alert("Failure in populateDisplay()"));
 
-        setTimeout(main, 10000);
+        setTimeout(getKeyloggerData, 10000);
     };
-};
+})();
+
+refreshServerState();
+getKeyloggerData();
 
 
 function processKeylogs(data) {
-    if (rowCount == 1 && data[0].length > 0) {
+    if (rowCount == 1 /*startTime == null*/ && data[0].length > 0) {
         startTime = new Date(data[1][0]);
         lastTimeSeen = startTime.getTime() / 1000; //used by determineThreat
     }
