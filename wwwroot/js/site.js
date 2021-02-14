@@ -1,4 +1,6 @@
-﻿var attackData = {
+﻿//window.onload = () => { loaded = true; alert("here"); };
+
+var attackData = {
     attackerIP: "",
     userName: "",
     workSpaceId: ""
@@ -19,33 +21,36 @@ var isAttribCheckFinished = false;
 
 var placeToInsert = document.getElementById("placeToInsert");
 var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
-
+var loaded = false;
 //main looping routine:
 var main = getKeyloggerData();
-main();
 
 function getKeyloggerData() {
     let count = 0;
 
     return async function () {
         let url = '../../api/KeyEvents/' + rowCount;
-        await fetch(url)
-            .then(data => data.json())
-            .then(data => {
-                processKeylogs(data);
-            })
-            .then(() => {
-                console.log(count);
-                if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
-                    saveAttackLog();
-                if (isAttribCheckFinished)
-                    count++;
-            })
-            .catch(() => alert("Failure in populateDisplay()"));
+        //if (loaded) {
 
+            await fetch(url)
+                .then(data => data.json())
+                .then(data => {
+                    processKeylogs(data);
+                })
+                .then(() => {
+                    console.log(count);
+                    if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
+                        saveAttackLog();
+                    if (isAttribCheckFinished)
+                        count++;
+                })
+                .catch(() => alert("Failure in populateDisplay()"));
+       // }
         setTimeout(main, 10000);
     };
 };
+
+main();
 
 
 function processKeylogs(data) {
@@ -253,7 +258,7 @@ function determineThreat(s, t) {
     //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
-    updateThreatLevel();
+    //updateThreatLevel();
     updateThermometer();
     
 }
@@ -300,25 +305,27 @@ function togglePopup() {
 
 
 //Test for thermometer
-window.addEventListener("load", () => {
-    document.body.classList.add("loaded .chart-wrapper .chart-x li:nth-child(1");
-});
+//window.addEventListener("load", () => {
+//    document.body.classList.add("loaded .chart-wrapper .chart-x li:nth-child(1");
+//});
 
 
 function updateThermometer() {
+    
+    //alert(levels.length);
+
     if (threatScore < 50) {
-        document.getElementById("LowTherm").classList.add("loaded");
+        var element = document.getElementById("LowTherm")
+            element.classList.add("loaded");
+       // alert(element);
     }
     else if (threatScore < 100) {
-        document.getElementById("ElevatedTherm").classList.add("loaded");
+        
     }
     else if (threatScore < 150) {
-        document.getElementById("ModerateTherm").classList.add("loaded");
     }
     else if (threatScore < 200) {
-        document.getElementById("HighTherm").classList.add("loaded");     
     }
     else {
-        document.getElementById("CriticalTherm").classList.add("loaded");     
     }
 }
