@@ -17,6 +17,12 @@
     <div id="threatIndicator"><h4>Threat Level Indicator: <span id="threatLevel"></span></h4></div>
 </div>
 
+<br />
+<br />
+<br />
+
+
+
 <div class="monitorSpace">
     <table id="displayArea">
         <thead>
@@ -43,6 +49,29 @@
     </div>
 </div>
 
+
+
+
+<div class="chart-wrapper">
+    <ul class="chart-y">
+        <li>Critical</li>
+        <li>High</li>
+        <li>Moderate</li>
+        <li>Elevated</li>
+        <li>Low</li>
+    </ul>
+    <ul class="chart-x">
+        <li id="LowTherm" points="50"></li>
+        <li id="ElevatedTherm" points="100"></li>
+        <li id="ModerateTherm" points="150"></li>
+        <li id="HighTherm" points="200"></li>
+        <li id="CriticalTherm" points="250"></li>
+    </ul>
+    @*<ul class="chart-labels">
+        <li>2018 - €95,000</li>
+        ...
+    </ul>*@
+</div>
 
 @section Scripts
 {

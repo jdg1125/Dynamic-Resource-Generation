@@ -254,6 +254,8 @@ function determineThreat(s, t) {
 
     console.log("Threat Score = " + threatScore);
     updateThreatLevel();
+    updateThermometer();
+    
 }
 
 function updateThreatLevel() {
@@ -294,4 +296,29 @@ function updateThreatLevel() {
 // popup function (terminate)
 function togglePopup() {
     document.getElementById("popup_terminate").classList.toggle("active");
+}
+
+
+//Test for thermometer
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded .chart-wrapper .chart-x li:nth-child(1");
+});
+
+
+function updateThermometer() {
+    if (threatScore < 50) {
+        document.getElementById("LowTherm").classList.add("loaded");
+    }
+    else if (threatScore < 100) {
+        document.getElementById("ElevatedTherm").classList.add("loaded");
+    }
+    else if (threatScore < 150) {
+        document.getElementById("ModerateTherm").classList.add("loaded");
+    }
+    else if (threatScore < 200) {
+        document.getElementById("HighTherm").classList.add("loaded");     
+    }
+    else {
+        document.getElementById("CriticalTherm").classList.add("loaded");     
+    }
 }
