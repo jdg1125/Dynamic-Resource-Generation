@@ -25,7 +25,7 @@ namespace CreateWorkspaceDemo.api
             try
             {
                 client.Connect("pop.gmail.com", 995, true);
-                client.Authenticate();
+                client.Authenticate("josephdavidglassjr@gmail.com", "ThisIs@Password");
             }
             catch (OpenPop.Pop3.Exceptions.InvalidLoginException e)
             {
@@ -56,6 +56,11 @@ namespace CreateWorkspaceDemo.api
 
                         if (text != "")
                             text = ParseAWSMessage(text);
+
+                        client.DeleteMessage(i);
+                        _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
+                        _messages.Add(text);
+                        break;  //we need to send only this item when we see it to allow browser time to "clean up" between attacks without erasing or misassigning attack data
                     }
 
                     _messages.Add(text); //if a multipart message is seen that isn't from AWS SES, count the message, but don't bother capturing it
