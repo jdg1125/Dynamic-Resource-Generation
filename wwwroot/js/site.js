@@ -81,7 +81,7 @@ function processKeylogs(data) {
 
     for (let i = 0; i < data[0].length; i++) {
         if (data[0][i] != "") {
-            getAttackerInfo(data[0][i], data[0][1]);  //check every message to see if a new attack has begun. Assume only sequential attacks are possible.
+            getAttackerInfo(data[0][i], data[1][i]);  //check every message to see if a new attack has begun. Assume only sequential attacks are possible.
 
             determineThreat(data[0][i], data[1][i]);
 
