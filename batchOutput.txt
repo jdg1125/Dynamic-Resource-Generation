@@ -1,0 +1,31 @@
+
+An error occurred (InvalidSignatureException) when calling the CreateWorkspaces operation: The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.
+
+An error occurred (InvalidSignatureException) when calling the CreateWorkspaces operation: The request signature we calculated does not match the signature you provided. Check your AWS Secret Access Key and signing method. Consult the service documentation for details.
+{
+    "FailedRequests": [
+        {
+            "WorkspaceRequest": {
+                "DirectoryId": "d-9067602864",
+                "UserName": "jake",
+                "BundleId": "wsb-grjwkpq51",
+                "WorkspaceProperties": {
+                    "RunningMode": "ALWAYS_ON"
+                },
+                "Tags": []
+            },
+            "ErrorCode": "ResourceExists.WorkSpace",
+            "ErrorMessage": "A WorkSpace already exists for the specified user."
+        }
+    ],
+    "PendingRequests": []
+}
+{
+    "FailedRequests": [
+        {
+            "WorkspaceId": "ws-wp6n1c25n",
+            "ErrorCode": "ResourceInvalidState.Workspace",
+            "ErrorMessage": "The specified WorkSpace has an invalid state for this operation."
+        }
+    ]
+}
