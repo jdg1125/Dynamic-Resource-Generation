@@ -98,7 +98,13 @@ body {
 button {
     float: left;
     border-radius: 10px 10px 10px 10px;
+    /*border: 2px solid black;*/
 }
+
+    button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+        filter: brightness(125%);
+    }
 
 .monitorSpace {
 /*    margin-top: 80px;
@@ -135,26 +141,31 @@ button {
 .threatLow {
     background-color: #008000;
     color: white;
+    border-radius: 8px;
 }
 
 .threatElevated {
     background-color: greenyellow;
     color: black;
+    border-radius: 8px;
 }
 
 .threatModerate {
     background-color: #ffff00;
     color: black;
+    border-radius: 8px;
 }
 
 .threatHigh {
     background-color: #ff0000;
     color: white;
+    border-radius: 8px;
 }
 
 .threatCritical {
     background-color: black;
     color: white;
+    border-radius: 8px;
 }
 
 /* popup */

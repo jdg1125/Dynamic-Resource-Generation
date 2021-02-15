@@ -1,4 +1,5 @@
-﻿
+
+
 var attackData = {
     attackerIP: "",
     userName: "",
@@ -15,20 +16,41 @@ var attacker = {
 };
 
 var attackId = "";
-var startTime;
+var startTime = null;
 var isAttribCheckFinished = false;
+var performingCleanup = false;
 
 var placeToInsert = document.getElementById("placeToInsert");
-var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
+var rowCount = 1; //pop client message indexing starts from 1.  
 
-//main looping function:
+//refresh server's "cache" of commands on refresh or on new attack
 
-var main = getKeyloggerData();
-function getKeyloggerData() {
+function refreshServerState() {
+    let url = "../../api/KeyEvents";
+    let paramObj = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    };
+
+    fetch(url, paramObj)
+        .then(() => alert("Server state has been refreshed"))
+        .catch(() => alert("Failed to refresh server state"));
+}
+
+
+
+
+//main looping routine:
+
+var getKeyloggerData = (function () {
     let count = 0;
 
     return async function () {
-        let url = '../../api/KeyEvents/' + rowCount;
+        let url = '../../api/KeyEvents/';
+
+        if (!performingCleanup) {  //stall getting more keylogs until attack context has switched
             await fetch(url)
                 .then(data => data.json())
                 .then(data => {
@@ -42,24 +64,26 @@ function getKeyloggerData() {
                         count++;
                 })
                 .catch(() => alert("Failure in populateDisplay()"));
-
-        setTimeout(main, 10000);
+        }
+        setTimeout(getKeyloggerData, 10000);
     };
-};
+})();
+
+refreshServerState();
+getKeyloggerData();
 
 main();
 
 
 function processKeylogs(data) {
-    if (rowCount == 1 && data[0].length > 0) {
+    if (rowCount == 1 /*startTime == null*/ && data[0].length > 0) {                     //RECHECK THIS!!! rowCount var may no longer be necessary
         startTime = new Date(data[1][0]);
         lastTimeSeen = startTime.getTime() / 1000; //used by determineThreat
     }
 
     for (let i = 0; i < data[0].length; i++) {
         if (data[0][i] != "") {
-            if (attackData.attackerIP === "")
-                getAttackerInfo(data[0][i]);
+            getAttackerInfo(data[0][i], data[1][i]);  //check every message to see if a new attack has begun. Assume only sequential attacks are possible.
 
             determineThreat(data[0][i], data[1][i]);
 
@@ -71,8 +95,11 @@ function processKeylogs(data) {
     console.log("Number of emails = " + rowCount);
 }
 
-function getAttackerInfo(msg) {
+function getAttackerInfo(msg, time) {
     if (msg.length > 39 && msg.substring(0, 39) === "AWS Alert - possible WorkSpace attack. ") {
+        if (attackData.attackerIP != "")  //we are inside an attack and we need to switch contexts to set up environment for another attack.
+            switchAttacks(time);
+
         let s = msg.substring(39);
 
         attacker.ip = attackData.attackerIP = s.substring(0, s.indexOf(' '));
@@ -114,6 +141,35 @@ function renderTable(notification, timeStamp) {
     placeToInsert.append(row);
 }
 
+function switchAttacks(time) {
+    performingCleanup = true;
+
+    saveAttackLog();
+    refreshServerState();
+
+    //refresh state of attack in JS
+    attackData.attackerIP = "";
+    attackData.userName = "";
+    attackData.workSpaceId = "";
+
+    attacker._id = { };
+    attacker.idAsString = "";
+    attacker.ipList = [];
+    attacker.name = "";
+    attacker.prevMaxThreatLevel = "";
+    attacker.attacks = [];
+    attackId = "";
+
+    startTime = time != null ? new Date(time) : null; //null if we are responding to a logoff or shutdown -L command   
+    isAttribCheckFinished = false;
+    rowCount = 1;
+
+    threatScore = 0;
+    updateThreatLevel();
+
+    performingCleanup = false;
+}
+
 
 //terminate
 var terminate_bttn = document.getElementById("terminate");
@@ -140,6 +196,8 @@ function terminateWorkspace() {
         .then(data => alert(data))
         .then(saveAttackLog);
 }
+
+
 
 //saveLog
 var saveLog = document.getElementById("saveLog");
@@ -190,6 +248,7 @@ function saveAttackLog() {
 }
 
 
+
 //setup
 var setup = document.getElementById("setup");
 setup.addEventListener("click", setupWorkspace);
@@ -214,6 +273,8 @@ function setupWorkspace() {
         .then(data => alert(data));
 }
 
+
+
 //threat level indicator
 var threatScore = 0;
 var lastTimeSeen;
@@ -227,6 +288,11 @@ function initThreatScore() {
 }
 
 function determineThreat(s, t) {
+    if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
+        switchAttacks(null);
+        return;
+    }
+
     if (s.indexOf("powershell") >= 0)
         threatScore += 100;
 
@@ -245,8 +311,8 @@ function determineThreat(s, t) {
         }
     }
 
-    var RowPoints = rowCount / 2; //1 point for every minute in the environment; Need to add row of StartTime
-    threatScore += RowPoints;
+    var rowPoints = rowCount / 2; //1 point for every minute in the environment
+    threatScore += rowPoints;
 
     //increase threat score as time elapses
     //let currTime = new Date(t);
@@ -328,6 +394,8 @@ function updateThermometer() {
         level4.classList.add("loaded");
     }
 }
+
+
 
 // popup function (terminate)
 function togglePopup() {
