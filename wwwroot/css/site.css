@@ -73,6 +73,17 @@ body {
     line-height: 60px; /* Vertically center the text there */
 }
 
+
+.content-top {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.content-left {
+    display: grid;
+    grid-template-rows: auto auto;
+}
+
 #displayArea {
     margin: 0 30px 30px 0;
     background-color: white;
@@ -81,11 +92,11 @@ body {
 
     #displayArea td, #displayArea th {
         border: 1px solid grey;
-        padding: 15px;
+        padding: 12px;
     }
 
 button {
-    float: right;
+    float: left;
     border-radius: 10px 10px 10px 10px;
     /*border: 2px solid black;*/
 }
@@ -96,8 +107,8 @@ button {
     }
 
 .monitorSpace {
-    margin-top: 80px;
-    overflow-y: scroll;
+/*    margin-top: 80px;
+*/    overflow-y: scroll;
     height: 60vh;
     width: 100%;
 }
@@ -111,6 +122,7 @@ button {
 #setup {
     background-color: darkblue;
     color: white;
+    margin-right: 50px;
 }
 
 #saveLog {
@@ -119,7 +131,7 @@ button {
 }
 
 .buttonArea {
-    width: 100%;
+   float: left;
 }
 
 #threatIndicator {
@@ -207,4 +219,127 @@ button {
 .popup.active .content {
     transition: all 300ms ease-in-out;
     transform: translate(-50%,-50%) scale(1);
+}
+
+/*Thermometer*/
+
+:root {
+    --chart-bg-color: rgba(211, 211, 211, .3);
+    --chart-line-color: black;
+    --chart-x-color: white;
+    --line-color1: #008000;
+    --line-color2: greenyellow;
+    --line-color3: #ffff00;
+    --line-color4: #ff0000;
+    --line-color5: black;
+    --black: #2d2929;
+    --white: white;
+    --transition-delay: 0.6s;
+    --transition-delay-step: 0.6s;
+}
+
+ul {
+    list-style: none;
+}
+
+
+.chart-wrapper {
+    display: grid;
+    justify-content: center;
+    grid-column-gap: 4rem;
+    grid-template-columns: auto auto;
+    /*//height: 150px;*/
+}
+
+.chart-wrapper .chart-y {
+  display: grid;
+  grid-row-gap: 1rem;
+}
+
+/*CUSTOM VARIABLES HERE*/
+ 
+.chart-wrapper .chart-x {
+  position: relative;
+  width: 50px;
+  border-radius: 25px;
+  border: 8px solid var(--chart-line-color);
+/*  background: var(--chart-bg-color);
+*/  overflow: hidden;
+}
+
+/*CUSTOM VARIABLES HERE*/
+ 
+/*.chart-wrapper .chart-x li*/ #LowTherm, #ElevatedTherm, #ModerateTherm, #HighTherm, #CriticalTherm {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+/*  height: 0%;
+*/  color: transparent;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  /*background:*/ /*var(--chart-x-color);*/ /*transparent;*/
+/*  transition: height 0.5s ease-out;
+*/}
+
+/*CUSTOM VARIABLES HERE*/
+ 
+/*.chart-wrapper .chart-x li*/
+    #LowTherm::before, #ElevatedTherm::before, #ModerateTherm::before, #HighTherm::before, #CriticalTherm::before {
+        content: attr(points);
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        border-top: 4px solid;
+        width: 20px;
+        opacity: 1;
+        padding-left: 3px;
+        color: var(--black);
+        font-size: 0.75rem;
+        /*transition: opacity 0.5s ease-out;*/
+    }
+ 
+#LowTherm::before {
+  border-color: var(--line-color1);
+}
+ 
+#ElevatedTherm::before {
+  border-color: var(--line-color2);
+}
+ 
+#ModerateTherm::before {
+  border-color: var(--line-color3);
+}
+ 
+#HighTherm::before {
+  border-color: var(--line-color4);
+}
+ 
+#CriticalTherm::before {
+  border-color: var(--line-color5);
+}
+
+
+
+.loaded {
+    opacity: 1;
+    background-color: white;
+}
+#LowTherm {
+    height: 15%;
+}
+
+#ElevatedTherm {
+    height: 35%;
+}
+#ModerateTherm {
+    height: 50%;
+}
+#HighTherm {
+    height: 72%;
+}
+#CriticalTherm {
+    height: 95%;
 }

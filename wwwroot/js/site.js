@@ -1,4 +1,4 @@
-﻿
+
 
 var attackData = {
     attackerIP: "",
@@ -41,6 +41,7 @@ function refreshServerState() {
 
 
 
+
 //main looping routine:
 
 var getKeyloggerData = (function () {
@@ -64,13 +65,14 @@ var getKeyloggerData = (function () {
                 })
                 .catch(() => alert("Failure in populateDisplay()"));
         }
-
         setTimeout(getKeyloggerData, 10000);
     };
 })();
 
 refreshServerState();
 getKeyloggerData();
+
+main();
 
 
 function processKeylogs(data) {
@@ -319,47 +321,78 @@ function determineThreat(s, t) {
     //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
-    updateThreatLevel();
+    //updateThreatLevel();
+    updateThermometer();
+    
 }
 
-function updateThreatLevel() {
-    if (threatScore < 50) {
-        threatIndicator.innerHTML = " Low";
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.remove("threatModerate");
-        threatIndicator.classList.remove("threatHigh");
-        threatIndicator.classList.remove("threatCritical");
+//function updateThreatLevel() {
+//    if (threatScore < 50) {
+//        threatIndicator.innerHTML = " Low";
+//        threatIndicator.classList.add("threatLow");
+//    }
+//    else if (threatScore < 100) {
+//        threatIndicator.innerHTML = " Elevated";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.add("threatElevated");
+//    }
+//    else if (threatScore < 150) {
+//        threatIndicator.innerHTML = " Moderate";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.add("threatModerate");
+//    }
+//    else if (threatScore < 200) {
+//        threatIndicator.innerHTML = " High";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.remove("threatModerate");
+//        threatIndicator.classList.add("threatHigh");
+//    }
+//    else {
+//        threatIndicator.innerHTML = " Critical";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.remove("threatModerate");
+//        threatIndicator.classList.remove("threatHigh");
+//        threatIndicator.classList.add("threatCritical");
+//    }
 
-        threatIndicator.classList.add("threatLow");
+//    console.log("threat level = " + threatIndicator.innerHTML);
+//}
+
+function updateThermometer() {
+    let level0 = document.getElementById("LowTherm");
+    let level1 = document.getElementById("ElevatedTherm");
+    let level2 = document.getElementById("ModerateTherm");
+    let level3 = document.getElementById("HighTherm");
+    let level4 = document.getElementById("CriticalTherm");
+
+    if (threatScore < 50) {
+        level1.classList.remove("loaded");
+        level2.classList.remove("loaded");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level0.classList.add("loaded");
     }
     else if (threatScore < 100) {
-        threatIndicator.innerHTML = " Elevated";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.add("threatElevated");
+        level2.classList.remove("loaded");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level1.classList.add("loaded");
     }
     else if (threatScore < 150) {
-        threatIndicator.innerHTML = " Moderate";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.add("threatModerate");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level2.classList.add("loaded");
     }
     else if (threatScore < 200) {
-        threatIndicator.innerHTML = " High";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.remove("threatModerate");
-        threatIndicator.classList.add("threatHigh");
+        level4.classList.remove("loaded");
+        level3.classList.add("loaded");
     }
     else {
-        threatIndicator.innerHTML = " Critical";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.remove("threatModerate");
-        threatIndicator.classList.remove("threatHigh");
-        threatIndicator.classList.add("threatCritical");
+        level4.classList.add("loaded");
     }
-
-    console.log("threat level = " + threatIndicator.innerHTML);
 }
 
 
