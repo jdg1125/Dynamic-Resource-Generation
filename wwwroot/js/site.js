@@ -72,7 +72,7 @@ var getKeyloggerData = (function () {
 refreshServerState();
 getKeyloggerData();
 
-main();
+//main();
 
 
 function processKeylogs(data) {
@@ -293,21 +293,53 @@ function determineThreat(s, t) {
         return;
     }
 
-    if (s.indexOf("powershell") >= 0)
-        threatScore += 100;
+    //if (s.indexOf("powershell") >= 0)
+    //    threatScore += 100;
 
-    let sub = s;
-    let indexCd, indexDir;
-    let foundCd = true, foundDir = true;
+    //if (s.indexOf("mstsc"))
+    //    threatScore += 100;
 
-    while (foundCd || foundDir) {
-        foundCd = (indexCd = sub.indexOf("cd ")) >= 0;
-        foundDir = (indexDir = sub.indexOf("dir")) >= 0;
+    //let sub = s;
+    //let indexCd, indexDir;
+    //let foundCd = true, foundDir = true;
 
-        if (foundCd || foundDir) {
-            let index = indexCd >= 0 && indexCd < indexDir ? indexCd : indexDir;
-            threatScore += (threatScore >= 50) ? 5 : 1;
-            sub = sub.substring(index + 3);
+    //while (foundCd || foundDir) {
+    //    foundCd = (indexCd = sub.indexOf("cd ")) >= 0;
+    //    foundDir = (indexDir = sub.indexOf("dir")) >= 0;
+
+    //    if (foundCd || foundDir) {
+    //        let index = indexCd >= 0 && indexCd < indexDir ? indexCd : indexDir;
+    //        threatScore += (threatScore >= 50) ? 5 : 1;
+    //        sub = sub.substring(index + 3);
+    //    }
+    //}
+    var att_commands = {
+
+        "powershell": 100,
+
+        "mstsc": 100,
+
+        "cd": 1,
+
+        "dir": 1,
+
+        "copy": 50,
+
+        "del": 70,
+
+        "mkdir": 50,
+
+        "rmdir": 100,
+
+        "move": 50,
+
+    };
+
+
+    for (var key in att_commands) {
+        if (att_commands.hasOwnProperty(key)) {
+            if (s.toLowerCase().indexOf(key) >= 0)
+            threatScore += att_commands[key];
         }
     }
 
