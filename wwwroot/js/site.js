@@ -72,8 +72,6 @@ var getKeyloggerData = (function () {
 refreshServerState();
 getKeyloggerData();
 
-main();
-
 
 function processKeylogs(data) {
     if (rowCount == 1 /*startTime == null*/ && data[0].length > 0) {                     //RECHECK THIS!!! rowCount var may no longer be necessary
@@ -108,6 +106,7 @@ function getAttackerInfo(msg, time) {
         attackData.workSpaceId = s.substring(0, s.indexOf(' '));
         s = s.substring(attackData.workSpaceId.length + 1);
         attackData.userName = s;
+        alert("here");
 
         let url = '../../api/DB/' + attacker.ip;
         fetch(url)
@@ -165,7 +164,7 @@ function switchAttacks(time) {
     rowCount = 1;
 
     threatScore = 0;
-    updateThreatLevel();
+    updateThermometer();
 
     performingCleanup = false;
 }
@@ -284,14 +283,14 @@ function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
     console.log("in initThreatScore: " + JSON.stringify(attacker))
     console.log("initThreatScore: " + threatScore);
-    updateThreatLevel();
+    updateThermometer();
 }
 
 function determineThreat(s, t) {
-    if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
-        switchAttacks(null);
-        return;
-    }
+    //if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
+    //    switchAttacks(null);
+    //    return;
+    //}
 
     if (s.indexOf("powershell") >= 0)
         threatScore += 100;
@@ -311,8 +310,8 @@ function determineThreat(s, t) {
         }
     }
 
-    var rowPoints = rowCount / 2; //1 point for every minute in the environment
-    threatScore += rowPoints;
+    //var rowPoints = rowCount / 2; //1 point for every minute in the environment
+    //threatScore += rowPoints;
 
     //increase threat score as time elapses
     //let currTime = new Date(t);
