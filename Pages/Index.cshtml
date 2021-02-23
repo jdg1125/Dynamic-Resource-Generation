@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Home page";
 }
-<div class="wrap">
+<div class="container">
     <br />
     <br />
     <div class="content-top">
@@ -12,10 +12,10 @@
             <br />
             <br />
             <div class="buttonArea">
-                <button id="setup">Set Up Workspace</button>
-                <button id="saveLog">Save Log</button>
-                <button id="terminate">Terminate Environment</button>
+
             </div>
+
+
         </div>
 
 
@@ -36,23 +36,30 @@
             </ul>
         </div>
     </div>
-
-    <div class="monitorSpace">
-    <table id="displayArea">
-        <thead>
-            <tr>
-                <th>Notifications</th>
-                <th>Date/Time Logged</th>
-                <th>Workspace Owner</th>
-                <th>Workspace ID</th>
-                <th>Attacker IP</th>
-            </tr>
-        </thead>
-        <tbody id="placeToInsert">
-        </tbody>
-
-    </table>
 </div>
+
+<ul class="Button">
+    <li><span id="setup">Set Up Workspace</span></li>
+    <li><span id="saveLog">Save Log</span></li>
+    <li><span id="terminate">Terminate Environment</span></li>
+</ul>
+<div class="container">
+    <div class="monitorSpace">
+        <table id="displayArea">
+            <thead>
+                <tr>
+                    <th>Notifications</th>
+                    <th>Date/Time Logged</th>
+                    <th>Workspace Owner</th>
+                    <th>Workspace ID</th>
+                    <th>Attacker IP</th>
+                </tr>
+            </thead>
+            <tbody id="placeToInsert">
+            </tbody>
+
+        </table>
+    </div>
 
 </div>
 
