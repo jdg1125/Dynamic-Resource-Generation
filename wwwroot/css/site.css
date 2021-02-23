@@ -96,16 +96,42 @@ body {
         padding: 12px;
     }
 
-button {
+.Button {
+    list-style-type: none;
+    margin-left: auto;
+    padding-left: 200px;
+    overflow: hidden;
+    background-color: blue;
+}
+
+.Button li {
+    float: left;
+}
+
+    .Button li span {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+        /* Change the link color to #111 (black) on hover */
+        .Button li span:hover {
+            background-color: deepskyblue !important;
+            cursor: pointer;
+        }
+
+/*button {
     float: left;
     border-radius: 10px 10px 10px 10px;
     /*border: 2px solid black;*/
-}
+/*}
 
     button:hover {
         box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
         filter: brightness(125%);
-    }
+    }*/
 
 .monitorSpace {
 /*    margin-top: 80px;
@@ -115,19 +141,19 @@ button {
 }
 
 #terminate {
-    background-color: darkgray;
+    background-color: blue;
     color: white;
     margin-right: 50px;
 }
 
 #setup {
-    background-color: darkgray;
+    background-color: blue;
     color: white;
     margin-right: 50px;
 }
 
 #saveLog {
-    background-color: darkgray;
+    background-color: blue;
     color: white;
     margin-right: 50px;
 }
