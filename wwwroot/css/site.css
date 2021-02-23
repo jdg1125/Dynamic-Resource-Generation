@@ -91,7 +91,8 @@ body {
 }
 
     #displayArea td, #displayArea th {
-        border: 1px solid grey;
+        border-top: 1px solid grey;
+        border-bottom: 1px solid grey;
         padding: 12px;
     }
 
@@ -249,6 +250,8 @@ ul {
     justify-content: center;
     grid-column-gap: 4rem;
     grid-template-columns: auto auto;
+    border: groove 5px;
+
     /*//height: 150px;*/
 }
 
