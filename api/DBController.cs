@@ -37,8 +37,6 @@ namespace MonitoringConsole.api
         [HttpPost]
         public async Task<State> Post([FromBody] State attackData)
         {
-            await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes
-
             if (attackData.AttackerId == null || attackData.AttackerId == "")
             {
                 Attacker attacker = new Attacker();
@@ -72,17 +70,16 @@ namespace MonitoringConsole.api
                 attackData.AttackId = attack._id.ToString();
 
                 await _context.LinkAttack(attackData);
-
             }
             else
             {
                 await _context.UpdateAttack(attackData);
             }
 
-            return attackData;
+            return await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes;
         }
 
-        private async Task SaveKeylogs(State attackData)
+        private async Task<State> SaveKeylogs(State attackData)
         {
             List<string> CmdsSinceLastSave = new List<string>();
 
@@ -92,21 +89,48 @@ namespace MonitoringConsole.api
                 CurrLine = CommandsEntered.Count;
             }
 
-            attackData.KeyStrokes = CmdsSinceLastSave;
-
             if (CmdsSinceLastSave.Count > 0)
             {
-
-                StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
-                fileName.Append("\\Data\\Keylogs\\log_");
-                fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-                fileName.Append(".json");
-
-                using (FileStream createStream = System.IO.File.Create(fileName.ToString()))
+                if (LogFileName == "")
                 {
-                    await JsonSerializer.SerializeAsync(createStream, attackData);
+                    StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
+                    fileName.Append("\\Data\\Keylogs\\log_");
+                    fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+                    fileName.Append(".json");
+
+                    LogFileName = fileName.ToString();
+                    attackData.KeyStrokes = CmdsSinceLastSave;
+
+                    using (FileStream createStream = System.IO.File.Create(LogFileName))
+                    {
+                        await JsonSerializer.SerializeAsync(createStream, attackData);
+                    }
+                }
+                else //we only need to update the current log
+                {
+                    StringBuilder jsonString = new StringBuilder();
+                    string buffer = "";
+                    StreamReader reader = new StreamReader(LogFileName);
+
+                    while ((buffer = reader.ReadLine()) != null)
+                        jsonString.Append(buffer);
+
+                    reader.Close();
+
+                    State prevState = JsonSerializer.Deserialize<State>(jsonString.ToString());
+                    prevState.KeyStrokes.AddRange(CmdsSinceLastSave);
+                    prevState.EndTime = attackData.EndTime;
+                    prevState.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
+
+                    using (FileStream updateStream = System.IO.File.Create(LogFileName))
+                    {
+                        await JsonSerializer.SerializeAsync(updateStream, prevState);
+                    }
+                    attackData = prevState;
                 }
             }
+
+            return attackData;
         }
 
         // GET: api/<DBController>

@@ -18,17 +18,9 @@ namespace CreateWorkspaceDemo.api
         private List<string> _times;
 
         // GET: api/<KeyEventsController>
-        [HttpGet("{id}")]
-        public List<List<string>> Get(int id)
+        [HttpGet]
+        public List<List<string>> Get()
         {
-
-            if(id==1) //empty buffer and keylog "cache" when browser refreshes
-            {
-                Overflow = "";
-                CommandsEntered.Clear();
-                CurrLine = 0;
-            }
-
             var client = new Pop3Client();
             try
             {
@@ -44,7 +36,7 @@ namespace CreateWorkspaceDemo.api
             _messages = new List<string>(count);
             _times = new List<string>(count);
 
-            for (int i = id; i <= count; i++)
+            for (int i = 1; i <= count; i++)
             {
                 Message message = client.GetMessage(i);
 
@@ -64,6 +56,11 @@ namespace CreateWorkspaceDemo.api
 
                         if (text != "")
                             text = ParseAWSMessage(text);
+
+                        client.DeleteMessage(i);
+                        _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
+                        _messages.Add(text);
+                        break;  //we need to send only this item when we see it to allow browser time to "clean up" between attacks without erasing or misassigning attack data
                     }
 
                     _messages.Add(text); //if a multipart message is seen that isn't from AWS SES, count the message, but don't bother capturing it
@@ -89,13 +86,28 @@ namespace CreateWorkspaceDemo.api
                     }
                 }
 
+                client.DeleteMessage(i);
                 _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
             }
 
             List<List<string>> result = new List<List<string>>();
             result.Add(_messages);
             result.Add(_times);
+
+            client.Disconnect();
+
             return result;
+        }
+
+        // PUT api/<KeyEventsController>/5
+        [HttpPut]
+        public void Put()  //empty buffer and keylog "cache" when browser refreshes
+        {
+            Overflow = "";
+            CommandsEntered.Clear();
+            CurrLine = 0;
+            LogFileName = "";
+            HttpContext.Response.StatusCode = 204;
         }
 
         private string ParseAWSMessage(string s)

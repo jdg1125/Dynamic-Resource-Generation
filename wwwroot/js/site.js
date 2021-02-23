@@ -1,4 +1,6 @@
-﻿var attackData = {
+
+
+var attackData = {
     attackerIP: "",
     userName: "",
     workSpaceId: ""
@@ -14,50 +16,74 @@ var attacker = {
 };
 
 var attackId = "";
-var startTime;
+var startTime = null;
 var isAttribCheckFinished = false;
+var performingCleanup = false;
 
 var placeToInsert = document.getElementById("placeToInsert");
-var rowCount = 1; //pop client message indexing starts from 1.  rowCount holds index of next message to be read
+var rowCount = 1; //pop client message indexing starts from 1.  
+
+//refresh server's "cache" of commands on refresh or on new attack
+
+function refreshServerState() {
+    let url = "../../api/KeyEvents";
+    let paramObj = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    };
+
+    fetch(url, paramObj)
+        .then(() => alert("Server state has been refreshed"))
+        .catch(() => alert("Failed to refresh server state"));
+}
+
+
+
 
 //main looping routine:
-var main = getKeyloggerData();
-main();
 
-function getKeyloggerData() {
+var getKeyloggerData = (function () {
     let count = 0;
 
     return async function () {
-        let url = '../../api/KeyEvents/' + rowCount;
-        await fetch(url)
-            .then(data => data.json())
-            .then(data => {
-                processKeylogs(data);
-            })
-            .then(() => {
-                console.log(count);
-                if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
-                    saveAttackLog();
-                if (isAttribCheckFinished)
-                    count++;
-            })
-            .catch(() => alert("Failure in populateDisplay()"));
+        let url = '../../api/KeyEvents/';
 
-        setTimeout(main, 10000);
+        if (!performingCleanup) {  //stall getting more keylogs until attack context has switched
+            await fetch(url)
+                .then(data => data.json())
+                .then(data => {
+                    processKeylogs(data);
+                })
+                .then(() => {
+                    console.log(count);
+                    if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
+                        saveAttackLog();
+                    if (isAttribCheckFinished)
+                        count++;
+                })
+                .catch(() => alert("Failure in populateDisplay()"));
+        }
+        setTimeout(getKeyloggerData, 10000);
     };
-};
+})();
+
+refreshServerState();
+getKeyloggerData();
+
+//main();
 
 
 function processKeylogs(data) {
-    if (rowCount == 1 && data[0].length > 0) {
+    if (rowCount == 1 /*startTime == null*/ && data[0].length > 0) {                     //RECHECK THIS!!! rowCount var may no longer be necessary
         startTime = new Date(data[1][0]);
         lastTimeSeen = startTime.getTime() / 1000; //used by determineThreat
     }
 
     for (let i = 0; i < data[0].length; i++) {
         if (data[0][i] != "") {
-            if (attackData.attackerIP === "")
-                getAttackerInfo(data[0][i]);
+            getAttackerInfo(data[0][i], data[1][i]);  //check every message to see if a new attack has begun. Assume only sequential attacks are possible.
 
             determineThreat(data[0][i], data[1][i]);
 
@@ -69,8 +95,11 @@ function processKeylogs(data) {
     console.log("Number of emails = " + rowCount);
 }
 
-function getAttackerInfo(msg) {
+function getAttackerInfo(msg, time) {
     if (msg.length > 39 && msg.substring(0, 39) === "AWS Alert - possible WorkSpace attack. ") {
+        if (attackData.attackerIP != "")  //we are inside an attack and we need to switch contexts to set up environment for another attack.
+            switchAttacks(time);
+
         let s = msg.substring(39);
 
         attacker.ip = attackData.attackerIP = s.substring(0, s.indexOf(' '));
@@ -112,6 +141,35 @@ function renderTable(notification, timeStamp) {
     placeToInsert.append(row);
 }
 
+function switchAttacks(time) {
+    performingCleanup = true;
+
+    saveAttackLog();
+    refreshServerState();
+
+    //refresh state of attack in JS
+    attackData.attackerIP = "";
+    attackData.userName = "";
+    attackData.workSpaceId = "";
+
+    attacker._id = { };
+    attacker.idAsString = "";
+    attacker.ipList = [];
+    attacker.name = "";
+    attacker.prevMaxThreatLevel = "";
+    attacker.attacks = [];
+    attackId = "";
+
+    startTime = time != null ? new Date(time) : null; //null if we are responding to a logoff or shutdown -L command   
+    isAttribCheckFinished = false;
+    rowCount = 1;
+
+    threatScore = 0;
+    updateThreatLevel();
+
+    performingCleanup = false;
+}
+
 
 //terminate
 var terminate_bttn = document.getElementById("terminate");
@@ -138,6 +196,8 @@ function terminateWorkspace() {
         .then(data => alert(data))
         .then(saveAttackLog);
 }
+
+
 
 //saveLog
 var saveLog = document.getElementById("saveLog");
@@ -188,6 +248,7 @@ function saveAttackLog() {
 }
 
 
+
 //setup
 var setup = document.getElementById("setup");
 setup.addEventListener("click", setupWorkspace);
@@ -212,6 +273,8 @@ function setupWorkspace() {
         .then(data => alert(data));
 }
 
+
+
 //threat level indicator
 var threatScore = 0;
 var lastTimeSeen;
@@ -225,26 +288,63 @@ function initThreatScore() {
 }
 
 function determineThreat(s, t) {
-    if (s.indexOf("powershell") >= 0)
-        threatScore += 100;
+    if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
+        switchAttacks(null);
+        return;
+    }
 
-    let sub = s;
-    let indexCd, indexDir;
-    let foundCd = true, foundDir = true;
+    //if (s.indexOf("powershell") >= 0)
+    //    threatScore += 100;
 
-    while (foundCd || foundDir) {
-        foundCd = (indexCd = sub.indexOf("cd ")) >= 0;
-        foundDir = (indexDir = sub.indexOf("dir")) >= 0;
+    //if (s.indexOf("mstsc"))
+    //    threatScore += 100;
 
-        if (foundCd || foundDir) {
-            let index = indexCd >= 0 && indexCd < indexDir ? indexCd : indexDir;
-            threatScore += (threatScore >= 50) ? 5 : 1;
-            sub = sub.substring(index + 3);
+    //let sub = s;
+    //let indexCd, indexDir;
+    //let foundCd = true, foundDir = true;
+
+    //while (foundCd || foundDir) {
+    //    foundCd = (indexCd = sub.indexOf("cd ")) >= 0;
+    //    foundDir = (indexDir = sub.indexOf("dir")) >= 0;
+
+    //    if (foundCd || foundDir) {
+    //        let index = indexCd >= 0 && indexCd < indexDir ? indexCd : indexDir;
+    //        threatScore += (threatScore >= 50) ? 5 : 1;
+    //        sub = sub.substring(index + 3);
+    //    }
+    //}
+    var att_commands = {
+
+        "powershell": 100,
+
+        "mstsc": 100,
+
+        "cd": 1,
+
+        "dir": 1,
+
+        "copy": 50,
+
+        "del": 70,
+
+        "mkdir": 50,
+
+        "rmdir": 100,
+
+        "move": 50,
+
+    };
+
+
+    for (var key in att_commands) {
+        if (att_commands.hasOwnProperty(key)) {
+            if (s.toLowerCase().indexOf(key) >= 0)
+            threatScore += att_commands[key];
         }
     }
 
-    var RowPoints = rowCount / 2; //1 point for every minute in the environment; Need to add row of StartTime
-    threatScore += RowPoints;
+    var rowPoints = rowCount / 2; //1 point for every minute in the environment
+    threatScore += rowPoints;
 
     //increase threat score as time elapses
     //let currTime = new Date(t);
@@ -253,43 +353,81 @@ function determineThreat(s, t) {
     //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
-    updateThreatLevel();
+    //updateThreatLevel();
+    updateThermometer();
+    
 }
 
-function updateThreatLevel() {
+//function updateThreatLevel() {
+//    if (threatScore < 50) {
+//        threatIndicator.innerHTML = " Low";
+//        threatIndicator.classList.add("threatLow");
+//    }
+//    else if (threatScore < 100) {
+//        threatIndicator.innerHTML = " Elevated";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.add("threatElevated");
+//    }
+//    else if (threatScore < 150) {
+//        threatIndicator.innerHTML = " Moderate";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.add("threatModerate");
+//    }
+//    else if (threatScore < 200) {
+//        threatIndicator.innerHTML = " High";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.remove("threatModerate");
+//        threatIndicator.classList.add("threatHigh");
+//    }
+//    else {
+//        threatIndicator.innerHTML = " Critical";
+//        threatIndicator.classList.remove("threatLow");
+//        threatIndicator.classList.remove("threatElevated");
+//        threatIndicator.classList.remove("threatModerate");
+//        threatIndicator.classList.remove("threatHigh");
+//        threatIndicator.classList.add("threatCritical");
+//    }
+
+//    console.log("threat level = " + threatIndicator.innerHTML);
+//}
+
+function updateThermometer() {
+    let level0 = document.getElementById("LowTherm");
+    let level1 = document.getElementById("ElevatedTherm");
+    let level2 = document.getElementById("ModerateTherm");
+    let level3 = document.getElementById("HighTherm");
+    let level4 = document.getElementById("CriticalTherm");
+
     if (threatScore < 50) {
-        threatIndicator.innerHTML = " Low";
-        threatIndicator.classList.add("threatLow");
+        level1.classList.remove("loaded");
+        level2.classList.remove("loaded");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level0.classList.add("loaded");
     }
     else if (threatScore < 100) {
-        threatIndicator.innerHTML = " Elevated";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.add("threatElevated");
+        level2.classList.remove("loaded");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level1.classList.add("loaded");
     }
     else if (threatScore < 150) {
-        threatIndicator.innerHTML = " Moderate";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.add("threatModerate");
+        level3.classList.remove("loaded");
+        level4.classList.remove("loaded");
+        level2.classList.add("loaded");
     }
     else if (threatScore < 200) {
-        threatIndicator.innerHTML = " High";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.remove("threatModerate");
-        threatIndicator.classList.add("threatHigh");
+        level4.classList.remove("loaded");
+        level3.classList.add("loaded");
     }
     else {
-        threatIndicator.innerHTML = " Critical";
-        threatIndicator.classList.remove("threatLow");
-        threatIndicator.classList.remove("threatElevated");
-        threatIndicator.classList.remove("threatModerate");
-        threatIndicator.classList.remove("threatHigh");
-        threatIndicator.classList.add("threatCritical");
+        level4.classList.add("loaded");
     }
-
-    console.log("threat level = " + threatIndicator.innerHTML);
 }
+
+
 
 // popup function (terminate)
 function togglePopup() {

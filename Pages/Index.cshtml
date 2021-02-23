@@ -4,20 +4,40 @@
     ViewData["Title"] = "Home page";
 }
 <div class="wrap">
-<br />
-<br />
-<h1>Attack Monitoring Console</h1>
-<br />
-<br />
-<div class="buttonArea">
-    <button id="setup">Set up workspace</button>
-    <button id="saveLog">Save Log</button>
-    <button id="terminate">Terminate Environment</button>
+    <br />
+    <br />
+    <div class="content-top">
+        <div class="content-left">
+            <h1>Attack Monitoring Console</h1>
+            <br />
+            <br />
+            <div class="buttonArea">
+                <button id="setup">Set Up Workspace</button>
+                <button id="saveLog">Save Log</button>
+                <button id="terminate">Terminate Environment</button>
+            </div>
+        </div>
 
-    <div id="threatIndicator"><h4>Threat Level Indicator: <span id="threatLevel"></span></h4></div>
-</div>
 
-<div class="monitorSpace">
+        <div class="chart-wrapper">
+            <ul class="chart-y">
+                <li>Critical</li>
+                <li>High</li>
+                <li>Moderate</li>
+                <li>Elevated</li>
+                <li>Low</li>
+            </ul>
+            <ul class="chart-x">
+                <li id="LowTherm" points="50"></li>
+                <li id="ElevatedTherm" points="100"></li>
+                <li id="ModerateTherm" points="150"></li>
+                <li id="HighTherm" points="200"></li>
+                <li id="CriticalTherm" points="250"></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="monitorSpace">
     <table id="displayArea">
         <thead>
             <tr>
@@ -33,6 +53,7 @@
 
     </table>
 </div>
+
 </div>
 
 <div class="popup" id="popup_terminate">
@@ -44,7 +65,10 @@
 </div>
 
 
+
+
+
 @section Scripts
 {
-  
+
 }
