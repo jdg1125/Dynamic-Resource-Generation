@@ -1,27 +1,47 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Attack Monitoring Console";
 }
+<nav>
+    <ul class="Button" id="buttons">
+        <li><span id="setup">Set Up WorkSpace</span></li>
+        <li><span id="saveLog">Save Log</span></li>
+        <li><span id="terminate">Terminate Environment</span></li>
+    </ul>
+</nav>
+
 <div class="container" id="topContent">
     <br />
     <br />
-    <div class="content-top">
-        <div class="content-left">
-            <h1>Attack Monitoring Console</h1>
-            <br />
-            <br />
-            <div class="blankSpace">
-            </div>
+    <h1>Attack Monitoring Console</h1>
+    <br />
+    <br />
+</div>
+<div class="container">
+    <div class="content-bottom">
+        <div class="monitorSpace">
+            <table id="displayArea">
+                <thead>
+                    <tr>
+                        <th>Notifications</th>
+                        <th>Date & Time</th>
+                        <th>WorkSpace Owner</th>
+                        <th>WorkSpace ID</th>
+                        <th>Attacker IP</th>
+                    </tr>
+                </thead>
+                <tbody id="placeToInsert">
+                </tbody>
+            </table>
         </div>
-
         <div class="chart-wrapper">
             <ul class="chart-y">
-                <li>Critical</li>
-                <li>High</li>
-                <li>Moderate</li>
-                <li>Elevated</li>
-                <li>Low</li>
+                <li id="low-level">Low</li>
+                <li id="elev-level">Elevated</li>
+                <li id="mod-level">Moderate</li>
+                <li id="high-level">High</li>
+                <li id="crit-level">Critical</li>
             </ul>
             <ul class="chart-x">
                 <li id="LowTherm" points="50" class="thermBlackText"></li>
@@ -33,34 +53,6 @@
         </div>
     </div>
 </div>
-
-<ul class="Button" id="buttons">
-    
-        <li><span id="setup">Set Up Workspace</span></li>
-        <li><span id="saveLog">Save Log</span></li>
-        <li><span id="terminate">Terminate Environment</span></li>
-    
-</ul>
-<div class="container">
-    <div class="monitorSpace">
-        <table id="displayArea">
-            <thead>
-                <tr>
-                    <th>Notifications</th>
-                    <th>Date/Time Logged</th>
-                    <th>Workspace Owner</th>
-                    <th>Workspace ID</th>
-                    <th>Attacker IP</th>
-                </tr>
-            </thead>
-            <tbody id="placeToInsert">
-            </tbody>
-
-        </table>
-    </div>
-
-</div>
-
 <div class="popup" id="popup_terminate">
     <div class="overlay"></div>
     <div class="content">
@@ -68,12 +60,3 @@
         <p>The environment has been terminated.</p>
     </div>
 </div>
-
-
-
-
-
-@section Scripts
-{
-
-}
