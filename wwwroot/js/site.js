@@ -1,4 +1,11 @@
+//function to place the buttons in the blue bar and update their position responsively
+function placeButtons() {
+    let coords = document.getElementById("topContent").getBoundingClientRect();
+    document.getElementById("buttons").style.setProperty("--left-offset", coords.left + "px");
+}
 
+placeButtons();
+window.addEventListener("resize", placeButtons);
 
 var attackData = {
     attackerIP: "",
@@ -39,19 +46,16 @@ function refreshServerState() {
         .catch(() => alert("Failed to refresh server state"));
 }
 
-
-
-
 //main looping routine:
 
 var getKeyloggerData = (function () {
     let count = 0;
 
-    return async function () {
+    return function () {
         let url = '../../api/KeyEvents/';
 
         if (!performingCleanup) {  //stall getting more keylogs until attack context has switched
-            await fetch(url)
+            fetch(url)
                 .then(data => data.json())
                 .then(data => {
                     processKeylogs(data);
@@ -65,15 +69,14 @@ var getKeyloggerData = (function () {
                 })
                 .catch(() => alert("Failure in populateDisplay()"));
         }
-        setTimeout(getKeyloggerData, 10000);
+        setTimeout(function () {
+            getKeyloggerData();
+        }, 10000);
     };
 })();
 
 refreshServerState();
 getKeyloggerData();
-
-//main();
-
 
 function processKeylogs(data) {
     if (rowCount == 1 /*startTime == null*/ && data[0].length > 0) {                     //RECHECK THIS!!! rowCount var may no longer be necessary
@@ -152,7 +155,7 @@ function switchAttacks(time) {
     attackData.userName = "";
     attackData.workSpaceId = "";
 
-    attacker._id = { };
+    attacker._id = {};
     attacker.idAsString = "";
     attacker.ipList = [];
     attacker.name = "";
@@ -165,7 +168,7 @@ function switchAttacks(time) {
     rowCount = 1;
 
     threatScore = 0;
-    updateThreatLevel();
+    updateThermometer();
 
     performingCleanup = false;
 }
@@ -284,14 +287,14 @@ function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
     console.log("in initThreatScore: " + JSON.stringify(attacker))
     console.log("initThreatScore: " + threatScore);
-    updateThreatLevel();
+    updateThermometer();
 }
 
 function determineThreat(s, t) {
-    if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
-        switchAttacks(null);
-        return;
-    }
+    //if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
+    //    switchAttacks(null);
+    //    return;
+    //}
 
     //if (s.indexOf("powershell") >= 0)
     //    threatScore += 100;
@@ -314,32 +317,22 @@ function determineThreat(s, t) {
     //    }
     //}
     var att_commands = {
-
         "powershell": 100,
-
         "mstsc": 100,
-
         "cd": 1,
-
         "dir": 1,
-
         "copy": 50,
-
         "del": 70,
-
         "mkdir": 50,
-
         "rmdir": 100,
-
         "move": 50,
-
     };
 
 
     for (var key in att_commands) {
         if (att_commands.hasOwnProperty(key)) {
             if (s.toLowerCase().indexOf(key) >= 0)
-            threatScore += att_commands[key];
+                threatScore += att_commands[key];
         }
     }
 
@@ -353,9 +346,8 @@ function determineThreat(s, t) {
     //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
-    //updateThreatLevel();
     updateThermometer();
-    
+
 }
 
 //function updateThreatLevel() {
@@ -401,33 +393,61 @@ function updateThermometer() {
     let level4 = document.getElementById("CriticalTherm");
 
     if (threatScore < 50) {
-        level1.classList.remove("loaded");
-        level2.classList.remove("loaded");
-        level3.classList.remove("loaded");
-        level4.classList.remove("loaded");
-        level0.classList.add("loaded");
+        unfillTherm([level1, level2, level3, level4]);
+        fillTherm([level0]);
+        document.documentElement.style.setProperty("--thermometer-background", "#008000");
+        turnThermTextWhite([level0]);
+        turnThermTextBlack([level1, level2, level3, level4]);
     }
     else if (threatScore < 100) {
-        level2.classList.remove("loaded");
-        level3.classList.remove("loaded");
-        level4.classList.remove("loaded");
-        level1.classList.add("loaded");
+        unfillTherm([level2, level3, level4]);
+        fillTherm([level0, level1]);
+        document.documentElement.style.setProperty("--thermometer-background", "gold");
+        turnThermTextBlack([level0, level1, level2, level3, level4]);
     }
     else if (threatScore < 150) {
-        level3.classList.remove("loaded");
-        level4.classList.remove("loaded");
-        level2.classList.add("loaded");
+        unfillTherm([level3, level4]);
+        fillTherm([level0, level1, level2]);
+        document.documentElement.style.setProperty("--thermometer-background", "#ff8c00");
+        turnThermTextBlack([level0, level1, level2, level3, level4]);
     }
     else if (threatScore < 200) {
-        level4.classList.remove("loaded");
-        level3.classList.add("loaded");
+        unfillTherm([level4]);
+        fillTherm([level0, level1, level2, level3]);
+        document.documentElement.style.setProperty("--thermometer-background", "#ff0000");
+        turnThermTextBlack([level0, level1, level2, level3, level4]);
     }
     else {
-        level4.classList.add("loaded");
+        fillTherm([level0, level1, level2, level3, level4]);
+        document.documentElement.style.setProperty("--thermometer-background", "black");
+        turnThermTextWhite([level0, level1, level2, level3, level4]);
     }
 }
 
 
+function turnThermTextBlack(levels) {
+    for (let item of levels) {
+        item.classList.remove("thermWhiteText");
+        item.classList.add("thermBlackText");
+    }
+}
+
+function turnThermTextWhite(levels) {
+    for (let item of levels) {
+        item.classList.remove("thermBlackText");
+        item.classList.add("thermWhiteText");
+    } 
+} 
+
+function fillTherm(levels) {
+    for (let item of levels)
+        item.classList.add("filled");
+}
+
+function unfillTherm(levels) {
+    for (let item of levels)
+        item.classList.remove("filled");
+}
 
 // popup function (terminate)
 function togglePopup() {
