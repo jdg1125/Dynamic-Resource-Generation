@@ -96,6 +96,10 @@ function processKeylogs(data) {
 
     rowCount += data[0].length;
     console.log("Number of emails = " + rowCount);
+    if (rowCount != 1) {
+        removeSetUpWorkspace();
+    }
+    
 }
 
 function getAttackerInfo(msg, time) {
@@ -253,28 +257,34 @@ function saveAttackLog() {
 
 
 //setup
-var setup = document.getElementById("setup");
-setup.addEventListener("click", setupWorkspace);
 
 function setupWorkspace() {
-    let url = '../../api/SetupWorkspace/';
-    let paramObj = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
-            DirectoryId: 'test',
-            UserName: 'test',
-            BundleId: 'test'
-        })
-    };
+    document.getElementById("DeployResourceMenu").classList.add("showBlock");
+} 
 
-    fetch(url, paramObj)
-        .then(data => data.json())
-        .then(data => JSON.stringify(data))
-        .then(data => alert(data));
-}
+
+//var setup = document.getElementById("setup");
+//setup.addEventListener("click", setupWorkspace);
+
+//function setupWorkspace() {
+//    let url = '../../api/SetupWorkspace/';
+//    let paramObj = {
+//        method: "POST",
+//        headers: {
+//            "Content-Type": "application/json"
+//        },
+//        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
+//            DirectoryId: 'test',
+//            UserName: 'test',
+//            BundleId: 'test'
+//        })
+//    };
+
+//    fetch(url, paramObj)
+//        .then(data => data.json())
+//        .then(data => JSON.stringify(data))
+//        .then(data => alert(data));
+//}
 
 
 
@@ -453,3 +463,9 @@ function unfillTherm(levels) {
 function togglePopup() {
     document.getElementById("popup_terminate").classList.toggle("active");
 }
+
+function removeSetUpWorkspace() {
+    document.getElementById("setup").innerHTML = "Set Up Workspace";
+    document.getElementById("setup").addEventListener("click", setupWorkspace);
+}
+

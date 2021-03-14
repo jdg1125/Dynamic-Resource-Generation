@@ -409,3 +409,12 @@ ul {
     left: 0;
     bottom: 0;
 }
+
+#setupLink {
+    color: white;
+}
+
+.showBlock{
+    display: block !important;
+
+}
