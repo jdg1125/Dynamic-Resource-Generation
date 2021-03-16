@@ -4,65 +4,123 @@
     ViewData["Title"] = "Attack Monitoring Console";
 }
 
-
-
 <nav>
-    <ul class="Button" id="buttons">
-        <li><span id="setup"><a id="setupLink" href="WorkspaceConfiguration" target="_blank">Set Up WorkSpace</a></span></li>
+    <ul class="toolbar container" id="buttons">
+        <li><span id="setup">Set Up WorkSpaces</span></li>
+        <li><span id="deploy">Deploy WorkSpaces</span></li>
         <li><span id="saveLog">Save Log</span></li>
         <li><span id="terminate">Terminate Environment</span></li>
     </ul>
 </nav>
 
+<div class="page-wrapper-grid" id="monitorView">
+    <div class="container content-top">
+        <div class="top-row-1">
+            <br />
+            <h1>Attack Monitoring Console</h1>
+            <br />
+            <br />
+        </div>
+        <div class="top-row-2">
+            <div class="content-left">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>WorkSpace Owner</th>
+                            <th>WorkSpace ID</th>
+                            <th>Attacker IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="insertAttackInfo">
+                    </tbody>
+                </table>
+            </div>
+            <div class="content-right">
+                <h3>Threat Level: <span id="threatText"></span></h3>
+                <div class="progress custom-progress" id="progressWrapper">
+                    <div class="progress-bar custom-progress" id="threatIndicator">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="DeployResourceMenu" style="display: none">Deploy Resource Frame</div>
 
-<div class="container" id="topContent">
-    <br />
-    <br />
-    <h1>Attack Monitoring Console</h1>
-    <br />
-    <br />
-</div>
-<div class="container">
-    <div class="content-bottom">
+
+    <div class="container" id="bottomContent">
+        <div class="content-left hidden-view" id="deployResourceMenu">
+            <h4>Deploy Resources</h4>
+            <br />
+            <table>
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Status</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Admin</td>
+                        <td>Joseph</td>
+                        <td>Stopped</td>
+                        <td><button>Deploy</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="monitorSpace">
             <table id="displayArea">
                 <thead>
                     <tr>
                         <th>Notifications</th>
                         <th>Date & Time</th>
-                        <th>WorkSpace Owner</th>
-                        <th>WorkSpace ID</th>
-                        <th>Attacker IP</th>
+                        @*<th>WorkSpace Owner</th>
+                            <th>WorkSpace ID</th>
+                            <th>Attacker IP</th>*@
                     </tr>
                 </thead>
-                <tbody id="placeToInsert">
+                <tbody id="insertKeylogs">
                 </tbody>
             </table>
         </div>
-
-
-        <div class="chart-wrapper">
-            <ul class="chart-y">
-                <li id="low-level">Low</li>
-                <li id="elev-level">Elevated</li>
-                <li id="mod-level">Moderate</li>
-                <li id="high-level">High</li>
-                <li id="crit-level">Critical</li>
-            </ul>
-            <ul class="chart-x">
-                <li id="LowTherm" points="50" class="thermBlackText"></li>
-                <li id="ElevatedTherm" points="100" class="thermBlackText"></li>
-                <li id="ModerateTherm" points="150" class="thermBlackText"></li>
-                <li id="HighTherm" points="200" class="thermBlackText"></li>
-                <li id="CriticalTherm" points="250" class="thermBlackText"></li>
-            </ul>
-        </div>
-
     </div>
+</div>
+
+<div class="container hidden-view" id="setupView">
+    <br />
+    <h1>Setup WorkSpaces</h1>
+    <br />
+    <br />
+    <form method="post">
+
+        <fieldset class="form-list">
+            <legend class="form-text-blue">WorkSpace Role</legend>
+            <div>
+                <input type="radio" name="WorkspaceRole" value="Engineer" />
+                <label value="Engineer">Engineer</label>
+            </div>
+            <div>
+                <input type="radio" name="WorkspaceRole" value="HRManager" />
+                <label value="HRManager">HRManager</label>
+            </div>
+            <div>
+                <input type="radio" name="WorkspaceRole" value="Admin" />
+                <label value="Admin">Admin</label>
+            </div>
+        </fieldset>
+        <br />
+        <br />
+        <label for="WorkspaceName" class="form-text-blue">Workspace Username</label>&nbsp;&nbsp;&nbsp;
+        <input name="WorkspaceName" value="" />
+        <br />
+        <br />
+        <button type="submit">Generate WorkSpace</button>
+    </form>
 
 </div>
+
 
 
 <div class="popup" id="popup_terminate">
