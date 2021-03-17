@@ -488,16 +488,40 @@ for (let i = 0; i < roles.length; i++) {
 //toggle status on deploy menu:
 
 function changeDeployStatus(e) {
-    //alert(e.target + "was clicked");
+
     let sender = e.target;
     let parent = sender.parentNode.parentNode;
-    //alert(parent);
+
     let status = parent.getElementsByTagName("span")[0];
     status.innerHTML = "Starting";
     status.classList.remove("text-stopped");
     status.classList.add("text-starting");
     sender.disabled = true;
-    //alert(status)
-    
-    //alert(status.innerHTML);
+
+}
+
+var costToDeploy = {
+    "justin": 3,
+    "jake": 3,
+    "joseph": 3
+}
+
+function addCostToTotal(e) {
+    let sender = e.target;
+    let username = sender.getAttribute("value");
+
+    let prevCost = parseFloat(document.getElementById("deployCost").innerHTML);
+    prevCost *= 10;
+    let tmp = prevCost + (sender.checked ? costToDeploy[username] : -costToDeploy[username]);
+    document.getElementById("deployCost").innerHTML = tmp / 10 == 0 ? "0.0" : tmp / 10;
+}
+
+function toggleHoursSelector(e) {
+    let sender = e.target;
+    if (sender.getAttribute("value") === "AlwaysOn") {
+        document.getElementById("hoursSelector").classList.add("hidden-view");
+    }
+    else {
+        document.getElementById("hoursSelector").classList.remove("hidden-view");
+    }
 }

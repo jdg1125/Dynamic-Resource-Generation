@@ -27,7 +27,11 @@
                     <thead>
                         <tr>
                             <th>WorkSpace Owner</th>
+                        </tr>
+                        <tr>
                             <th>WorkSpace ID</th>
+                        </tr>
+                        <tr>
                             <th>Attacker IP</th>
                         </tr>
                     </thead>
@@ -48,7 +52,23 @@
 
 
     <div class="container" id="bottomContent">
-        <div class="content-left hidden-view" id="deployResourceMenu">
+
+        <div class="monitorSpace">
+            <table id="displayArea">
+                <thead>
+                    <tr>
+                        <th>Keystrokes</th>
+                        <th>Date & Time</th>
+                        @*<th>WorkSpace Owner</th>
+                            <th>WorkSpace ID</th>
+                            <th>Attacker IP</th>*@
+                    </tr>
+                </thead>
+                <tbody id="insertKeylogs">
+                </tbody>
+            </table>
+        </div>
+        <div class="hidden-view" id="deployResourceMenu">
             <h4>Deploy Resources</h4>
             <br />
             <table>
@@ -65,37 +85,26 @@
                         <td>Admin</td>
                         <td>joseph</td>
                         <td><span class="text-stopped">Stopped</span></td>
-                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
+                        <td><input type="checkbox" value="joseph" onclick="addCostToTotal(event)" /></td>
                     </tr>
                     <tr>
                         <td>Engineer</td>
                         <td>jake</td>
                         <td><span class="text-stopped">Stopped</span></td>
-                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
+                        <td><input type="checkbox" value="jake" onclick="addCostToTotal(event)" /></td>
                     </tr>
                     <tr>
                         <td>HR Manager</td>
                         <td>justin</td>
                         <td><span class="text-stopped">Stopped</span></td>
-                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
+                        <td><input type="checkbox" value="justin" onclick="addCostToTotal(event)" /></td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="monitorSpace">
-            <table id="displayArea">
-                <thead>
-                    <tr>
-                        <th>Notifications</th>
-                        <th>Date & Time</th>
-                        @*<th>WorkSpace Owner</th>
-                            <th>WorkSpace ID</th>
-                            <th>Attacker IP</th>*@
-                    </tr>
-                </thead>
-                <tbody id="insertKeylogs">
-                </tbody>
-            </table>
+            <br />
+            <h4>Cost Of Selected: &nbsp;&nbsp;&nbsp;&nbsp;$<span id="deployCost">0.0</span>0 per hour</h4>
+            <br />
+            <button id="deployBtn">Deploy Selected</button>
         </div>
     </div>
 </div>
@@ -108,7 +117,7 @@
     <form method="post">
 
         <fieldset class="form-list">
-            <legend class="form-text-blue">WorkSpace Role</legend>
+            <legend class="form-text-blue">WorkSpace Image</legend>
             <div>
                 <input type="radio" name="role" value="Engineer" />
                 <label for="Engineer">Engineer</label>
@@ -122,11 +131,57 @@
                 <label for="Admin">Admin</label>
             </div>
         </fieldset>
+
+        <fieldset class="form-list">
+            <legend class="form-text-blue">Running Mode</legend>
+            <div>
+                <input type="radio" name="runningMode" value="AlwaysOn" onclick="toggleHoursSelector(event)" />
+                <label for="runningMode">AlwaysOn</label>
+            </div>
+            <div>
+                <input type="radio" name="runningMode" value="AutoStop" onclick="toggleHoursSelector(event)" />
+                <label for="runningMode">AutoStop</label>                           @*check the for *@
+
+                <div id="hoursSelector" class="hidden-view">
+                    <label for="numHours">Number of hours before AutoStop: </label>
+                    <br />
+                    <select name="numHours">
+                        @for (int i = 1; i <= 48; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </fieldset>
         <br />
+   
+        <div id="volumeSizeSelector">
+            <label for="volumeSize" class="form-text-blue">Choose root volume & user volume size: </label>
+            <br />
+            <select name="volumeSize">
+                <option value="volPair1">Root 80GB - User 10GB</option>
+                <option value="volPair2">Root 80GB - User 50GB</option>
+                <option value="volPair3">Root 80GB - User 100GB</option>
+                <option value="volPair4">Root 175GB - User 100GB</option>
+                <option value="volPair5">Root 100GB - User 100GB</option>
+            </select>
+        </div>
         <br />
-        <label for="username" class="form-text-blue">Workspace Username</label>&nbsp;&nbsp;&nbsp;
-        <input name="username" value="" />
-        <br />
+
+        <div id="userNameSelector">
+            <label for="userName" class="form-text-blue">Choose username: </label>
+            <br />
+            <select name="userName" >
+                <option value="justin">justin</option>
+                <option value="eric">eric</option>
+                <option value="jake">jake</option>
+                <option value="daniel">daniel</option>
+                <option value="joseph">joseph</option>
+
+            </select>
+        </div>
+
         <br />
         <br />
         <h5>Cost To Set Up This WorkSpace: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="setupCost"></span></h5>

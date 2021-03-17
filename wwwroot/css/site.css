@@ -53,7 +53,7 @@ nav {
 .content-bottom-double {
     display: grid;
     grid-column-gap: 2rem;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 60% 40%;
 }
 
 #displayArea {
@@ -95,7 +95,7 @@ nav {
             }
 
 
-.monitorSpace, .content-left {
+.monitorSpace {
     overflow-y: scroll;
 }
 
