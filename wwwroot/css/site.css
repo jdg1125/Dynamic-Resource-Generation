@@ -370,3 +370,13 @@ nav {
     color:#316de5 ;
     font-size: 18pt;
 }
+
+.text-starting {
+    color: green;
+    font-weight: bolder;
+}
+
+.text-stopped {
+    color: red;
+    font-weight: bolder;
+}

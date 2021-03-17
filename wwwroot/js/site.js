@@ -41,8 +41,8 @@ function refreshServerState() {
     };
 
     fetch(url, paramObj)
-        .then(() => alert("Server state has been refreshed"))
-        .catch(() => alert("Failed to refresh server state"));
+        .then(() => console.log("Server state has been refreshed"))
+        .catch(() => console.log("Failed to refresh server state"));
 }
 
 //main looping routine:
@@ -60,7 +60,7 @@ var getKeyloggerData = (function () {
                     processKeylogs(data);
                 })
                 .then(() => {
-                    console.log(count);
+                    console.log("count = " + count);
                     if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
                         saveAttackLog();
                     if (isAttribCheckFinished)
@@ -94,7 +94,7 @@ function processKeylogs(data) {
     }
 
     rowCount += data[0].length;
-    console.log("Number of emails = " + rowCount);
+    console.log("rowCount = " + rowCount);
     //if (rowCount != 1) {
     //    removeSetUpWorkspace();
     //}
@@ -146,8 +146,8 @@ function displayKeylogs(notification, timeStamp) {
     let row = document.createElement("tr");
 
     row.innerHTML = "<td>" + notification + "</td><td>" + timeStamp + "</td>";
-        //+ "</td><td>" + attackData.userName +
-        //"</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP;
+    //+ "</td><td>" + attackData.userName +
+    //"</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP;
 
     document.getElementById("insertKeylogs").append(row);
 }
@@ -213,7 +213,7 @@ function terminateWorkspace() {
     fetch(url, paramObj)
         .then(data => data.json())
         .then(data => JSON.stringify(data))
-        .then(data => alert(data))
+        .then(data => console.log(data))
         .then(saveAttackLog);
 }
 
@@ -258,11 +258,11 @@ function saveAttackLog() {
         .then((data) => {
             attackId = data.attackId;
             attacker.idAsString = data.attackerId;
-            alert(attacker.idAsString);
+            console.log("attackerId: " + attacker.idAsString);
             return data;
         })
         .then(data => JSON.stringify(data))
-        .then(data => alert(data))
+        .then(data => console.log(data))
         .catch(() => alert("Saving attack log failed"));
 
 }
@@ -469,3 +469,35 @@ document.getElementById("deploy").addEventListener("click", toggleDeployMenu);
 //    document.getElementById("setup").innerHTML = "Set Up Workspace";
 //    document.getElementById("setup").addEventListener("click", setupWorkspace);
 //}
+
+
+//display cost on setup page:
+
+var roles = document.getElementsByName("role");
+var prev = null;
+
+for (let i = 0; i < roles.length; i++) {
+    roles[i].addEventListener("change", function () {
+        if (this != prev) {
+            prev = this;
+            document.getElementById("setupCost").innerHTML = "$9.75/month, plus $0.30/hour"
+        }
+    });
+}
+
+//toggle status on deploy menu:
+
+function changeDeployStatus(e) {
+    //alert(e.target + "was clicked");
+    let sender = e.target;
+    let parent = sender.parentNode.parentNode;
+    //alert(parent);
+    let status = parent.getElementsByTagName("span")[0];
+    status.innerHTML = "Starting";
+    status.classList.remove("text-stopped");
+    status.classList.add("text-starting");
+    sender.disabled = true;
+    //alert(status)
+    
+    //alert(status.innerHTML);
+}

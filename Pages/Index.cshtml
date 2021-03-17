@@ -63,9 +63,21 @@
                 <tbody>
                     <tr>
                         <td>Admin</td>
-                        <td>Joseph</td>
-                        <td>Stopped</td>
-                        <td><button>Deploy</button></td>
+                        <td>joseph</td>
+                        <td><span class="text-stopped">Stopped</span></td>
+                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
+                    </tr>
+                    <tr>
+                        <td>Engineer</td>
+                        <td>jake</td>
+                        <td><span class="text-stopped">Stopped</span></td>
+                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
+                    </tr>
+                    <tr>
+                        <td>HR Manager</td>
+                        <td>justin</td>
+                        <td><span class="text-stopped">Stopped</span></td>
+                        <td><button onclick="changeDeployStatus(event)">Deploy</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -98,22 +110,26 @@
         <fieldset class="form-list">
             <legend class="form-text-blue">WorkSpace Role</legend>
             <div>
-                <input type="radio" name="WorkspaceRole" value="Engineer" />
-                <label value="Engineer">Engineer</label>
+                <input type="radio" name="role" value="Engineer" />
+                <label for="Engineer">Engineer</label>
             </div>
             <div>
-                <input type="radio" name="WorkspaceRole" value="HRManager" />
-                <label value="HRManager">HRManager</label>
+                <input type="radio" name="role" value="HRManager" />
+                <label for="HRManager">HRManager</label>
             </div>
             <div>
-                <input type="radio" name="WorkspaceRole" value="Admin" />
-                <label value="Admin">Admin</label>
+                <input type="radio" name="role" value="Admin" />
+                <label for="Admin">Admin</label>
             </div>
         </fieldset>
         <br />
         <br />
-        <label for="WorkspaceName" class="form-text-blue">Workspace Username</label>&nbsp;&nbsp;&nbsp;
-        <input name="WorkspaceName" value="" />
+        <label for="username" class="form-text-blue">Workspace Username</label>&nbsp;&nbsp;&nbsp;
+        <input name="username" value="" />
+        <br />
+        <br />
+        <br />
+        <h5>Cost To Set Up This WorkSpace: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="setupCost"></span></h5>
         <br />
         <br />
         <button type="submit">Generate WorkSpace</button>
