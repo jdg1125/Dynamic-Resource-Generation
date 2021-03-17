@@ -1,11 +1,8 @@
-﻿﻿ /* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-:root {
+﻿/*:root {
     --left-offset: 10px;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
+*/
 html {
     font-size: 14px;
     font-family: 'Lato', sans-serif;
@@ -17,63 +14,46 @@ html {
     }
 }
 
-/*.border-top {
-    border-top: 1px solid #e5e5e5;
-}
-
-.border-bottom {
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-    font-size: 1rem;
-    line-height: inherit;
-}*/
-
-/* Sticky footer styles
--------------------------------------------------- */
 html {
     position: relative;
     min-height: 100%;
 }
 
 body {
-    /* Margin bottom by footer height */
     margin-bottom: 60px;
-    background-color: white; /*originally lightgray*/
+    background-color: white; 
 }
 
-/*.footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    white-space: nowrap;
-    line-height: 60px;*/ /* Vertically center the text there */
-/*}*/
-
-h1 {
+h1, h2, h3, h4, h5, h6 {
     color: #316de5;
+}
+
+nav {
+    background-color: #316de5;
+}
+
+.page-wrapper-grid {
+    display: grid;
+    grid-row-gap: 2rem;
+    grid-template-rows: 30% 70%;
 }
 
 .content-top {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-rows: 39% 61%;
 }
 
-.content-bottom {
+.top-row-2 {
     display: grid;
     grid-column-gap: 2rem;
-    grid-template-columns: 75% 25%;
+    grid-template-columns: 45% 55%;
 }
 
-.content-left {
+
+.content-bottom-double {
     display: grid;
-    grid-template-rows: auto auto;
-    color: #316de5;
+    grid-column-gap: 2rem;
+    grid-template-columns: 60% 40%;
 }
 
 #displayArea {
@@ -82,26 +62,24 @@ h1 {
     font-size: 18px;
 }
 
-    #displayArea td, #displayArea th {
+    /*#displayArea td, #displayArea th*/ td, th {
         border-top: 1px solid #eeeeee;
         border-bottom: 1px solid #eeeeee;
         padding: 12px;
     }
 
-.Button {
+.toolbar {
     list-style-type: none;
-    /*margin-left: auto;
-    padding-left: 200px;*/
-    padding-left: var(--left-offset);
+    /*padding-left: var(--left-offset);*/
     overflow: hidden;
-    background-color: #316de5;
 }
 
-    .Button li {
+    .toolbar li {
         float: left;
+        margin-right: 50px;
     }
 
-        .Button li span {
+        .toolbar li span {
             display: block;
             color: white;
             text-align: center;
@@ -109,36 +87,23 @@ h1 {
             background-color: #316de5 !important;
         }
 
-
-            .Button li span:hover {
+            .toolbar li span:hover, #setupLink:hover {
                 background-color: #d5e1f8 !important;
                 color: black !important;
                 cursor: pointer;
+                text-decoration: none;
             }
 
-/*button {
-    float: left;
-    border-radius: 10px 10px 10px 10px;
-    /*border: 2px solid black;*/
-/*}
-
-    button:hover {
-        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-        filter: brightness(125%);
-    }*/
 
 .monitorSpace {
-    /*    margin-top: 80px;*/
     overflow-y: scroll;
-    height: 75vh;
-    /*width: 100%;*/
 }
 
-    .monitorSpace table {
-        /* width: 100%;*/
-    }
+.monitorSpace {
+    height: 60vh;
+}
 
-    .monitorSpace thead th {
+    /*.monitorSpace thead th*/ th {
         position: sticky;
         z-index: 1;
         top: 0;
@@ -146,62 +111,6 @@ h1 {
         background-color: white;
         color: #316de5;
     }
-
-#terminate {
-    background-color: blue;
-    color: white;
-    margin-right: 50px;
-}
-
-#setup {
-    background-color: blue;
-    color: white;
-    margin-right: 50px;
-}
-
-#saveLog {
-    background-color: blue;
-    color: white;
-    margin-right: 50px;
-}
-
-.blankSpace {
-    float: left;
-}
-
-#threatIndicator {
-    float: left;
-}
-/*
-.threatLow {
-    background-color: #008000;
-    color: white;
-    border-radius: 8px;
-}
-
-.threatElevated {
-    background-color: greenyellow;
-    color: black;
-    border-radius: 8px;
-}
-
-.threatModerate {
-    background-color: #ffff00;
-    color: black;
-    border-radius: 8px;
-}
-
-.threatHigh {
-    background-color: #ff0000;
-    color: white;
-    border-radius: 8px;
-}
-
-.threatCritical {
-    background-color: black;
-    color: white;
-    border-radius: 8px;
-}*/
 
 /* popup */
 
@@ -259,9 +168,9 @@ h1 {
 /*Thermometer*/
 
 :root {
-    --chart-bg-color: rgba(211, 211, 211, .3);
+   /* --chart-bg-color: rgba(211, 211, 211, .3);
     --chart-line-color: black;
-    --chart-x-color: white;
+    --chart-x-color: white;*/
     --line-color1: #008000;
     --line-color2: gold;
     --line-color3: #ff8c00;
@@ -270,11 +179,10 @@ h1 {
     --text-color-black: #2d2929;
     --text-color-white: #ffffff;
     --thermometer-background: #008000;
-    --transition-delay: 0.6s;
-    --transition-delay-step: 0.6s;
+    --progress-width: 0%;
 }
 
-ul {
+/*ul {
     list-style: none;
 }
 
@@ -288,12 +196,12 @@ ul {
     padding-right: 20px;
     background-color: #ffffff;
     overflow: scroll;
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-}
+    -ms-overflow-style: none;*/ /* IE and Edge */
+    /*scrollbar-width: none;*/ /* Firefox */
+/*}*/
     /* Hide scrollbar for Chrome, Safari and Opera */
 
-.chart-wrapper::-webkit-scrollbar { 
+/*.chart-wrapper::-webkit-scrollbar { 
     display: none;
 }
 
@@ -408,4 +316,67 @@ ul {
     position: absolute;
     left: 0;
     bottom: 0;
+}*/
+
+
+
+/*#setupLink {
+    text-decoration: none;
+    color: white;
+}*/
+
+.showBlock{
+    display: block !important;
+}
+
+.hidden-view {
+    display: none;
+}
+
+.low-threat {
+    background-color: var(--line-color1) !important;
+}
+.elevated-threat {
+    background-color: var(--line-color2) !important;
+}
+.moderate-threat {
+    background-color: var(--line-color3) !important;
+}
+.high-threat {
+    background-color: var(--line-color4) !important;
+}
+.critical-threat {
+    background-color: var(--line-color5) !important;
+}
+
+#progressWrapper {
+    height: 40px;
+    border: 2px solid black;
+}
+
+#threatIndicator {
+    height: 30px;
+    padding: 5px;
+    margin: auto 0 auto 0;
+    width: var(--progress-width);
+}
+
+.form-list {
+    display: flex;
+    flex-direction:column;
+}
+
+.form-text-blue {
+    color:#316de5 ;
+    font-size: 18pt;
+}
+
+.text-starting {
+    color: green;
+    font-weight: bolder;
+}
+
+.text-stopped {
+    color: red;
+    font-weight: bolder;
 }

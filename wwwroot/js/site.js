@@ -1,11 +1,11 @@
 //function to place the buttons in the blue bar and update their position responsively
-function placeButtons() {
-    let coords = document.getElementById("topContent").getBoundingClientRect();
-    document.getElementById("buttons").style.setProperty("--left-offset", coords.left + "px");
-}
+//function placeButtons() {
+//    let coords = document.getElementById("topContent").getBoundingClientRect();
+//    document.getElementById("buttons").style.setProperty("--left-offset", coords.left + "px");
+//}
 
-placeButtons();
-window.addEventListener("resize", placeButtons);
+//placeButtons();
+//window.addEventListener("resize", placeButtons);
 
 var attackData = {
     attackerIP: "",
@@ -27,7 +27,6 @@ var startTime = null;
 var isAttribCheckFinished = false;
 var performingCleanup = false;
 
-var placeToInsert = document.getElementById("placeToInsert");
 var rowCount = 1; //pop client message indexing starts from 1.  
 
 //refresh server's "cache" of commands on refresh or on new attack
@@ -42,8 +41,8 @@ function refreshServerState() {
     };
 
     fetch(url, paramObj)
-        .then(() => alert("Server state has been refreshed"))
-        .catch(() => alert("Failed to refresh server state"));
+        .then(() => console.log("Server state has been refreshed"))
+        .catch(() => console.log("Failed to refresh server state"));
 }
 
 //main looping routine:
@@ -61,7 +60,7 @@ var getKeyloggerData = (function () {
                     processKeylogs(data);
                 })
                 .then(() => {
-                    console.log(count);
+                    console.log("count = " + count);
                     if (isAttribCheckFinished && !(count %= 6))  //getAttackerInfo sets isAttribCheckFinished. save initially and then at every minute  
                         saveAttackLog();
                     if (isAttribCheckFinished)
@@ -90,13 +89,19 @@ function processKeylogs(data) {
 
             determineThreat(data[0][i], data[1][i]);
 
-            renderTable(data[0][i], data[1][i]);
+            displayKeylogs(data[0][i], data[1][i]);
         }
     }
 
     rowCount += data[0].length;
-    console.log("Number of emails = " + rowCount);
+    console.log("rowCount = " + rowCount);
+    //if (rowCount != 1) {
+    //    removeSetUpWorkspace();
+    //}
+
 }
+
+
 
 function getAttackerInfo(msg, time) {
     if (msg.length > 39 && msg.substring(0, 39) === "AWS Alert - possible WorkSpace attack. ") {
@@ -111,6 +116,8 @@ function getAttackerInfo(msg, time) {
         attackData.workSpaceId = s.substring(0, s.indexOf(' '));
         s = s.substring(attackData.workSpaceId.length + 1);
         attackData.userName = s;
+
+        displayAttackInfo();   //fill attack table 
 
         let url = '../../api/DB/' + attacker.ip;
         fetch(url)
@@ -135,13 +142,22 @@ function getAttackerInfo(msg, time) {
     }
 }
 
-function renderTable(notification, timeStamp) {
+function displayKeylogs(notification, timeStamp) {
     let row = document.createElement("tr");
 
-    row.innerHTML = "<td>" + notification + "</td><td>" + timeStamp + "</td><td>" + attackData.userName +
-        "</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP;
+    row.innerHTML = "<td>" + notification + "</td><td>" + timeStamp + "</td>";
+    //+ "</td><td>" + attackData.userName +
+    //"</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP;
 
-    placeToInsert.append(row);
+    document.getElementById("insertKeylogs").append(row);
+}
+
+function displayAttackInfo() {
+    let row = document.createElement("tr");
+
+    row.innerHTML = "<td>" + attackData.userName + "</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP + "</td>";
+
+    document.getElementById("insertAttackInfo").append(row);
 }
 
 function switchAttacks(time) {
@@ -168,7 +184,8 @@ function switchAttacks(time) {
     rowCount = 1;
 
     threatScore = 0;
-    updateThermometer();
+    //updateThermometer();
+    updateThreatLevel();
 
     performingCleanup = false;
 }
@@ -196,7 +213,7 @@ function terminateWorkspace() {
     fetch(url, paramObj)
         .then(data => data.json())
         .then(data => JSON.stringify(data))
-        .then(data => alert(data))
+        .then(data => console.log(data))
         .then(saveAttackLog);
 }
 
@@ -241,11 +258,11 @@ function saveAttackLog() {
         .then((data) => {
             attackId = data.attackId;
             attacker.idAsString = data.attackerId;
-            alert(attacker.idAsString);
+            console.log("attackerId: " + attacker.idAsString);
             return data;
         })
         .then(data => JSON.stringify(data))
-        .then(data => alert(data))
+        .then(data => console.log(data))
         .catch(() => alert("Saving attack log failed"));
 
 }
@@ -253,28 +270,30 @@ function saveAttackLog() {
 
 
 //setup
-var setup = document.getElementById("setup");
-setup.addEventListener("click", setupWorkspace);
 
-function setupWorkspace() {
-    let url = '../../api/SetupWorkspace/';
-    let paramObj = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
-            DirectoryId: 'test',
-            UserName: 'test',
-            BundleId: 'test'
-        })
-    };
 
-    fetch(url, paramObj)
-        .then(data => data.json())
-        .then(data => JSON.stringify(data))
-        .then(data => alert(data));
-}
+//var setup = document.getElementById("setup");
+//setup.addEventListener("click", setupWorkspace);
+
+//function setupWorkspace() {
+//    let url = '../../api/SetupWorkspace/';
+//    let paramObj = {
+//        method: "POST",
+//        headers: {
+//            "Content-Type": "application/json"
+//        },
+//        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
+//            DirectoryId: 'test',
+//            UserName: 'test',
+//            BundleId: 'test'
+//        })
+//    };
+
+//    fetch(url, paramObj)
+//        .then(data => data.json())
+//        .then(data => JSON.stringify(data))
+//        .then(data => alert(data));
+//}
 
 
 
@@ -287,35 +306,12 @@ function initThreatScore() {
     threatScore = attacker.prevMaxThreatLevel;
     console.log("in initThreatScore: " + JSON.stringify(attacker))
     console.log("initThreatScore: " + threatScore);
-    updateThermometer();
+    //updateThermometer();
+    updateThreatLevel();
 }
 
 function determineThreat(s, t) {
-    //if (s.indexOf("logoff") >= 0 || s.indexOf("shutdown -L") >= 0) { //attacker has exited the environment - signal the end of an attack and cleanup for next one
-    //    switchAttacks(null);
-    //    return;
-    //}
 
-    //if (s.indexOf("powershell") >= 0)
-    //    threatScore += 100;
-
-    //if (s.indexOf("mstsc"))
-    //    threatScore += 100;
-
-    //let sub = s;
-    //let indexCd, indexDir;
-    //let foundCd = true, foundDir = true;
-
-    //while (foundCd || foundDir) {
-    //    foundCd = (indexCd = sub.indexOf("cd ")) >= 0;
-    //    foundDir = (indexDir = sub.indexOf("dir")) >= 0;
-
-    //    if (foundCd || foundDir) {
-    //        let index = indexCd >= 0 && indexCd < indexDir ? indexCd : indexDir;
-    //        threatScore += (threatScore >= 50) ? 5 : 1;
-    //        sub = sub.substring(index + 3);
-    //    }
-    //}
     var att_commands = {
         "powershell": 100,
         "mstsc": 100,
@@ -346,110 +342,186 @@ function determineThreat(s, t) {
     //threatScore += timeElapsed / 360; 
 
     console.log("Threat Score = " + threatScore);
-    updateThermometer();
-
+    //updateThermometer();
+    updateThreatLevel();
 }
 
-//function updateThreatLevel() {
+//function updateThermometer() {
+//    let level0 = document.getElementById("LowTherm");
+//    let level1 = document.getElementById("ElevatedTherm");
+//    let level2 = document.getElementById("ModerateTherm");
+//    let level3 = document.getElementById("HighTherm");
+//    let level4 = document.getElementById("CriticalTherm");
+
 //    if (threatScore < 50) {
-//        threatIndicator.innerHTML = " Low";
-//        threatIndicator.classList.add("threatLow");
+//        unfillTherm([level1, level2, level3, level4]);
+//        fillTherm([level0]);
+//        document.documentElement.style.setProperty("--thermometer-background", "#008000");
+//        turnThermTextWhite([level0]);
+//        turnThermTextBlack([level1, level2, level3, level4]);
 //    }
 //    else if (threatScore < 100) {
-//        threatIndicator.innerHTML = " Elevated";
-//        threatIndicator.classList.remove("threatLow");
-//        threatIndicator.classList.add("threatElevated");
+//        unfillTherm([level2, level3, level4]);
+//        fillTherm([level0, level1]);
+//        document.documentElement.style.setProperty("--thermometer-background", "gold");
+//        turnThermTextBlack([level0, level1, level2, level3, level4]);
 //    }
 //    else if (threatScore < 150) {
-//        threatIndicator.innerHTML = " Moderate";
-//        threatIndicator.classList.remove("threatLow");
-//        threatIndicator.classList.remove("threatElevated");
-//        threatIndicator.classList.add("threatModerate");
+//        unfillTherm([level3, level4]);
+//        fillTherm([level0, level1, level2]);
+//        document.documentElement.style.setProperty("--thermometer-background", "#ff8c00");
+//        turnThermTextBlack([level0, level1, level2, level3, level4]);
 //    }
 //    else if (threatScore < 200) {
-//        threatIndicator.innerHTML = " High";
-//        threatIndicator.classList.remove("threatLow");
-//        threatIndicator.classList.remove("threatElevated");
-//        threatIndicator.classList.remove("threatModerate");
-//        threatIndicator.classList.add("threatHigh");
+//        unfillTherm([level4]);
+//        fillTherm([level0, level1, level2, level3]);
+//        document.documentElement.style.setProperty("--thermometer-background", "#ff0000");
+//        turnThermTextBlack([level0, level1, level2, level3, level4]);
 //    }
 //    else {
-//        threatIndicator.innerHTML = " Critical";
-//        threatIndicator.classList.remove("threatLow");
-//        threatIndicator.classList.remove("threatElevated");
-//        threatIndicator.classList.remove("threatModerate");
-//        threatIndicator.classList.remove("threatHigh");
-//        threatIndicator.classList.add("threatCritical");
+//        fillTherm([level0, level1, level2, level3, level4]);
+//        document.documentElement.style.setProperty("--thermometer-background", "black");
+//        turnThermTextWhite([level0, level1, level2, level3, level4]);
 //    }
-
-//    console.log("threat level = " + threatIndicator.innerHTML);
 //}
 
-function updateThermometer() {
-    let level0 = document.getElementById("LowTherm");
-    let level1 = document.getElementById("ElevatedTherm");
-    let level2 = document.getElementById("ModerateTherm");
-    let level3 = document.getElementById("HighTherm");
-    let level4 = document.getElementById("CriticalTherm");
 
-    if (threatScore < 50) {
-        unfillTherm([level1, level2, level3, level4]);
-        fillTherm([level0]);
-        document.documentElement.style.setProperty("--thermometer-background", "#008000");
-        turnThermTextWhite([level0]);
-        turnThermTextBlack([level1, level2, level3, level4]);
-    }
-    else if (threatScore < 100) {
-        unfillTherm([level2, level3, level4]);
-        fillTherm([level0, level1]);
-        document.documentElement.style.setProperty("--thermometer-background", "gold");
-        turnThermTextBlack([level0, level1, level2, level3, level4]);
-    }
-    else if (threatScore < 150) {
-        unfillTherm([level3, level4]);
-        fillTherm([level0, level1, level2]);
-        document.documentElement.style.setProperty("--thermometer-background", "#ff8c00");
-        turnThermTextBlack([level0, level1, level2, level3, level4]);
-    }
-    else if (threatScore < 200) {
-        unfillTherm([level4]);
-        fillTherm([level0, level1, level2, level3]);
-        document.documentElement.style.setProperty("--thermometer-background", "#ff0000");
-        turnThermTextBlack([level0, level1, level2, level3, level4]);
-    }
-    else {
-        fillTherm([level0, level1, level2, level3, level4]);
-        document.documentElement.style.setProperty("--thermometer-background", "black");
-        turnThermTextWhite([level0, level1, level2, level3, level4]);
-    }
-}
+//function turnThermTextBlack(levels) {
+//    for (let item of levels) {
+//        item.classList.remove("thermWhiteText");
+//        item.classList.add("thermBlackText");
+//    }
+//}
 
+//function turnThermTextWhite(levels) {
+//    for (let item of levels) {
+//        item.classList.remove("thermBlackText");
+//        item.classList.add("thermWhiteText");
+//    } 
+//} 
 
-function turnThermTextBlack(levels) {
-    for (let item of levels) {
-        item.classList.remove("thermWhiteText");
-        item.classList.add("thermBlackText");
-    }
-}
+//function fillTherm(levels) {
+//    for (let item of levels)
+//        item.classList.add("filled");
+//}
 
-function turnThermTextWhite(levels) {
-    for (let item of levels) {
-        item.classList.remove("thermBlackText");
-        item.classList.add("thermWhiteText");
-    } 
-} 
-
-function fillTherm(levels) {
-    for (let item of levels)
-        item.classList.add("filled");
-}
-
-function unfillTherm(levels) {
-    for (let item of levels)
-        item.classList.remove("filled");
-}
+//function unfillTherm(levels) {
+//    for (let item of levels)
+//        item.classList.remove("filled");
+//}
 
 // popup function (terminate)
 function togglePopup() {
     document.getElementById("popup_terminate").classList.toggle("active");
+}
+
+
+
+function updateThreatLevel() {
+    let threatIndicator = document.getElementById("threatIndicator");
+    let threatText = document.getElementById("threatText");
+    let barWidth = threatScore / 200 >= 1 ? 100 : (threatScore / 200) * 100;
+
+    document.documentElement.style.setProperty("--progress-width", barWidth + "%");
+    threatIndicator.className = "";
+
+    if (threatScore < 50) {
+        threatIndicator.classList.add("low-threat");
+        threatText.innerHTML = threatScore + "   Low";
+    }
+    else if (threatScore < 100) {
+        threatIndicator.classList.add("elevated-threat");
+        threatText.innerHTML = threatScore + "   Elevated";
+    }
+    else if (threatScore < 150) {
+        threatIndicator.classList.add("moderate-threat");
+        threatText.innerHTML = threatScore + "   Moderate";
+    }
+    else if (threatScore < 200) {
+        threatIndicator.classList.add("high-threat");
+        threatText.innerHTML = threatScore + "   High";
+    }
+    else {
+        threatIndicator.classList.add("critical-threat");
+        threatText.innerHTML = threatScore + "   Critical";
+    }
+}
+
+function togglePageView() {
+    document.getElementById("monitorView").classList.toggle("hidden-view");
+    document.getElementById("setupView").classList.toggle("hidden-view");
+}
+
+function toggleDeployMenu() {
+    document.getElementById("deployResourceMenu").classList.toggle("hidden-view");
+    document.getElementById("bottomContent").classList.toggle("content-bottom-double");
+}
+
+document.getElementById("setup").addEventListener("click", togglePageView);
+document.getElementById("deploy").addEventListener("click", toggleDeployMenu);
+
+//function setupWorkspace() {
+//    document.getElementById("DeployResourceMenu").classList.toggle("showBlock");
+//    document.getElementById("bottomContent").classList.add("content-bottom-double");
+//}
+
+//function removeSetUpWorkspace() {
+//    document.getElementById("setup").innerHTML = "Set Up Workspace";
+//    document.getElementById("setup").addEventListener("click", setupWorkspace);
+//}
+
+
+//display cost on setup page:
+
+var roles = document.getElementsByName("role");
+var prev = null;
+
+for (let i = 0; i < roles.length; i++) {
+    roles[i].addEventListener("change", function () {
+        if (this != prev) {
+            prev = this;
+            document.getElementById("setupCost").innerHTML = "$9.75/month, plus $0.30/hour"
+        }
+    });
+}
+
+//toggle status on deploy menu:
+
+function changeDeployStatus(e) {
+
+    let sender = e.target;
+    let parent = sender.parentNode.parentNode;
+
+    let status = parent.getElementsByTagName("span")[0];
+    status.innerHTML = "Starting";
+    status.classList.remove("text-stopped");
+    status.classList.add("text-starting");
+    sender.disabled = true;
+
+}
+
+var costToDeploy = {
+    "justin": 3,
+    "jake": 3,
+    "joseph": 3
+}
+
+function addCostToTotal(e) {
+    let sender = e.target;
+    let username = sender.getAttribute("value");
+
+    let prevCost = parseFloat(document.getElementById("deployCost").innerHTML);
+    prevCost *= 10;
+    let tmp = prevCost + (sender.checked ? costToDeploy[username] : -costToDeploy[username]);
+    document.getElementById("deployCost").innerHTML = tmp / 10 == 0 ? "0.0" : tmp / 10;
+}
+
+function toggleHoursSelector(e) {
+    let sender = e.target;
+    if (sender.getAttribute("value") === "AlwaysOn") {
+        document.getElementById("hoursSelector").classList.add("hidden-view");
+    }
+    else {
+        document.getElementById("hoursSelector").classList.remove("hidden-view");
+    }
 }
