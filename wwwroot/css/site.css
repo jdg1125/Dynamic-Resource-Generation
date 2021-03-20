@@ -371,12 +371,32 @@ nav {
     font-size: 18pt;
 }
 
-.text-starting {
+.text-running {
     color: green;
     font-weight: bolder;
 }
 
 .text-stopped {
     color: red;
+    font-weight: bolder;
+}
+
+.text-pending {
+    color: orange;
+    font-weight: bolder;
+}
+
+.text-termiating {
+    color: red;
+    font-weight: bolder;
+}
+
+.text-available {
+    color: lightgreen;
+    font-weight: bolder;
+}
+
+.text-black {
+    color: black;
     font-weight: bolder;
 }

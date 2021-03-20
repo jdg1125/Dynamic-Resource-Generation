@@ -1,0 +1,40 @@
+{
+    "Workspaces": [
+        {
+            "WorkspaceId": "ws-3h9mj97pn",
+            "DirectoryId": "d-90676026fa",
+            "UserName": "JustinD",
+            "IpAddress": "172.16.0.103",
+            "State": "STOPPED",
+            "BundleId": "wsb-7lrdybmf6",
+            "SubnetId": "subnet-029495e1108f3d5e8",
+            "ComputerName": "WSAMZN-2N2MH82R",
+            "WorkspaceProperties": {
+                "RunningMode": "AUTO_STOP",
+                "RunningModeAutoStopTimeoutInMinutes": 60,
+                "RootVolumeSizeGib": 80,
+                "UserVolumeSizeGib": 50,
+                "ComputeTypeName": "STANDARD"
+            },
+            "ModificationStates": []
+        },
+        {
+            "WorkspaceId": "ws-6pdfvmx70",
+            "DirectoryId": "d-90676026fa",
+            "UserName": "Jude",
+            "IpAddress": "172.16.1.149",
+            "State": "STOPPED",
+            "BundleId": "wsb-7lrdybmf6",
+            "SubnetId": "subnet-0e4962407f40f8d4f",
+            "ComputerName": "WSAMZN-GOH7397I",
+            "WorkspaceProperties": {
+                "RunningMode": "AUTO_STOP",
+                "RunningModeAutoStopTimeoutInMinutes": 60,
+                "RootVolumeSizeGib": 80,
+                "UserVolumeSizeGib": 50,
+                "ComputeTypeName": "STANDARD"
+            },
+            "ModificationStates": []
+        }
+    ]
+}
