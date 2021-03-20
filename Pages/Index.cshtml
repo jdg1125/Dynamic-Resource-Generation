@@ -193,14 +193,27 @@
             </div>
         </fieldset>
 
+        <div id="volumeSizeSelector">
+            <label for="volumeSize" class="form-text-blue">Choose root volume & user volume size: </label>
+            <br />
+            <select id="volume_choices" name="volumeSize">
+                <option class="volPair" value="volPair1">Root 80GB - User 10GB</option>
+                <option class="volPair" value="volPair2">Root 80GB - User 50GB</option>
+                <option class="volPair" value="volPair3">Root 80GB - User 100GB</option>
+                <option class="volPair" value="volPair4">Root 175GB - User 100GB</option>
+            </select>
+        </div>
+        <br />
+
+
         <fieldset class="form-list">
             <legend class="form-text-blue">Running Mode</legend>
             <div>
-                <input type="radio" name="runningMode" value="AlwaysOn" onclick="toggleHoursSelector(event)" />
+                <input class="runningMode" type="radio" name="runningMode" value="AlwaysOn" onclick="toggleHoursSelector(event)" />
                 <label for="runningMode">AlwaysOn</label>
             </div>
             <div>
-                <input type="radio" name="runningMode" value="AutoStop" onclick="toggleHoursSelector(event)" />
+                <input class="runningMode" type="radio" name="runningMode" value="AutoStop" onclick="toggleHoursSelector(event)" />
                 <label for="runningMode">AutoStop</label>                           @*check the for *@
 
                 <div id="hoursSelector" class="hidden-view">
@@ -216,24 +229,12 @@
             </div>
         </fieldset>
         <br />
-   
-        <div id="volumeSizeSelector">
-            <label for="volumeSize" class="form-text-blue">Choose root volume & user volume size: </label>
-            <br />
-            <select name="volumeSize">
-                <option value="volPair1">Root 80GB - User 10GB</option>
-                <option value="volPair2">Root 80GB - User 50GB</option>
-                <option value="volPair3">Root 80GB - User 100GB</option>
-                <option value="volPair4">Root 175GB - User 100GB</option>
-                <option value="volPair5">Root 100GB - User 100GB</option>
-            </select>
-        </div>
-        <br />
+
 
         <div id="userNameSelector">
             <label for="userName" class="form-text-blue">Choose username: </label>
             <br />
-            <select name="userName" >
+            <select name="userName">
                 <option value="justin">justin</option>
                 <option value="eric">eric</option>
                 <option value="jake">jake</option>

@@ -500,16 +500,16 @@ function changeDeployStatus(e) {
 
 }
 
-var costToDeploy = {
-    "justin": 3,
-    "jake": 3,
-    "joseph": 3
-}
+//var costToDeploy = {
+//    "justin": 3,
+//    "jake": 3,
+//    "joseph": 3
+//}
+
 
 function addCostToTotal(e) {
     let sender = e.target;
     let username = sender.getAttribute("value");
-
     let prevCost = parseFloat(document.getElementById("deployCost").innerHTML);
     prevCost *= 10;
     let tmp = prevCost + (sender.checked ? costToDeploy[username] : -costToDeploy[username]);
@@ -557,3 +557,60 @@ function DeploySelected() {
         .then(data => JSON.stringify(data))
         .then(data => alert(data));
 }
+
+
+var RunningModeRadio = document.getElementsByClassName("runningMode");
+//var VolumePair = document.getElementsByClassName("volPair");
+
+var VolumeChoice = document.getElementById("volume_choices");
+
+for (var int = 0; int < RunningModeRadio.length; int++) {
+    RunningModeRadio[int].addEventListener("click", ConfigWorkspaceCost);
+}
+
+VolumeChoice.addEventListener("change", ConfigWorkspaceCost);
+
+
+var run_mode = document.getElementsByClassName("runningMode");
+var vol_pair = document.getElementsByClassName("volPair");
+var myWorkspacePrices = [{ "monthly": 7.25, "hourly": .3, "flat-monthly": 33 }, { "monthly": 9.75, "hourly": .3, "flat-monthly": 35 }, { "monthly": 13, "hourly": .3, "flat-monthly": 38 }, { "monthly": 19, "hourly": .3, "flat-monthly": 44}]
+function ConfigWorkspaceCost() {
+    var hold_run_mode = "";
+    for (var int = 0; int < run_mode.length; int++) {
+        if (run_mode[int].checked)
+            hold_run_mode = run_mode[int];
+    }
+
+    var hold_vol_pair = "";
+    for (var int = 0; int < vol_pair.length; int++) {
+        if (vol_pair[int].selected)
+            hold_vol_pair = vol_pair[int];
+    }
+    switch (hold_vol_pair.getAttribute("value")) {
+            case "volPair1":
+                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[0]["flat-monthly"];
+                else
+                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[0]["monthly"] + " per month and " + "$" + myWorkspacePrices[0]["hourly"] + " hourly";
+                break;
+            case "volPair2":
+                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[1]["flat-monthly"];
+                else
+                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[1]["monthly"] + " per month and " + "$"  + myWorkspacePrices[1]["hourly"] + " hourly";
+                break;
+            case "volPair3":
+                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[2]["flat-monthly"];
+                else
+                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[2]["monthly"] + " per month and " + "$" +myWorkspacePrices[2]["hourly"] + " hourly";
+                break;
+            case "volPair4":
+                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[3]["flat-monthly"];
+                else
+                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[3]["monthly"] + " per month and " + "$" + myWorkspacePrices[3]["hourly"] + " hourly";
+                break;
+        }
+    }
+
