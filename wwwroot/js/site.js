@@ -525,3 +525,35 @@ function toggleHoursSelector(e) {
         document.getElementById("hoursSelector").classList.remove("hidden-view");
     }
 }
+
+//function getDeployInfo() {
+//    fetch(".\MyJson.json").then(data => data.JSON()).then(Response => DisplayDeployInfo(Response))
+//}
+
+
+//var ds = getElementById('deployBtn');
+//ds.addEventListener("click", DeploySelected);
+var ws_cname = document.getElementsByClassName('starting_ws');
+function DeploySelected() {
+    var myList = []
+    for (var i = 0; i < ws_cname.length; i++) {
+        if (ws_cname[i].checked != false) {
+            myList.push(ws_cname[i].getAttribute("value"));
+        }
+    }
+    let url = '../../api/StartWorkspaces/';
+    let paramObj = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
+            StartWorkspaceList: myList
+        })
+    };
+
+    fetch(url, paramObj)
+        .then(data => data.json())
+        .then(data => JSON.stringify(data))
+        .then(data => alert(data));
+}

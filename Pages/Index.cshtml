@@ -81,7 +81,68 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach(var ws in Model.result.Workspaces){ 
                     <tr>
+                        @{
+                            foreach (var bd in Model.result2.Bundles)
+                            {
+                                if (!Model.bundle_dicts.ContainsKey(bd.BundleId))
+                                {
+                                    Model.bundle_dicts.Add(bd.BundleId, bd.Name);
+                                }
+                            }
+                        }
+                        @if (Model.bundle_dicts.ContainsKey(ws.BundleId))
+                        {
+                            <td>@Model.bundle_dicts[ws.BundleId]</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>@ws.UserName</td>
+                        @{
+                            var text_cond = "nothing";
+                        }
+                        @if (ws.State == "STOPPED")
+                        {
+                            text_cond = "text-stopped";
+                        }
+                        else if (ws.State == "PENDING")
+                        {
+                            text_cond = "text-pending";
+                        }
+                        else if (ws.State == "AVAILABLE")
+                        {
+                            text_cond = "text-available";
+                        }
+                        else if (ws.State == "STARTING")
+                        {
+                            text_cond = "text-running";
+                        }
+                        else if (ws.State == "TERMINATING")
+                        {
+                            text_cond = "text-terminating";
+                        }
+                        else
+                        {
+                            text_cond = "text-black";
+                        }
+                        <td><span class="@text_cond">@ws.State</span></td>
+
+                        @if (ws.State != "STOPPED" || ws.State == "TERMINATING" || ws.State == "TERMINATED" || ws.WorkspaceProperties.RunningMode != "AUTO_STOP")
+                        {
+                            <td><input  class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" disabled /></td>
+                        }
+                        else
+                        {
+                            <td><input class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" /></td>
+                        }
+
+                    </tr>
+                   
+                    }
+                    @*<tr>
                         <td>Admin</td>
                         <td>joseph</td>
                         <td><span class="text-stopped">Stopped</span></td>
@@ -98,13 +159,13 @@
                         <td>justin</td>
                         <td><span class="text-stopped">Stopped</span></td>
                         <td><input type="checkbox" value="justin" onclick="addCostToTotal(event)" /></td>
-                    </tr>
+                    </tr>*@
                 </tbody>
             </table>
             <br />
             <h4>Cost Of Selected: &nbsp;&nbsp;&nbsp;&nbsp;$<span id="deployCost">0.0</span>0 per hour</h4>
             <br />
-            <button id="deployBtn">Deploy Selected</button>
+            <button id="deployBtn" onclick="DeploySelected()">Deploy Selected</button>
         </div>
     </div>
 </div>
