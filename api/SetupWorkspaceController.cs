@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MonitoringConsole.Class_Library;
-
+using Amazon.WorkSpaces.Model;
+using Amazon.WorkSpaces;
+using System.Runtime.Serialization;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MonitoringConsole.api
@@ -16,53 +18,55 @@ namespace MonitoringConsole.api
     [ApiController]
     public class SetupWorkspaceController : ControllerBase
     {
-        public static string Output { get; set; }
-        private static TaskCompletionSource<bool> _readFileComplete;
-
         // POST api/<SetupWorkspaceController>
         [HttpPost]
         public async Task<string> Post([FromBody] WorkspaceCreate value)
         {
-            _readFileComplete = new TaskCompletionSource<bool>();            
-            string path = Environment.CurrentDirectory + "\\createworkspace.bat";
+            AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
+            CreateWorkspacesRequest createReq = new CreateWorkspacesRequest();
+            //createReq.Workspaces = new List<WorkspaceRequest>();
 
-            ProcessStartInfo processInfo = new ProcessStartInfo(path);
-            processInfo.UseShellExecute = true;
+            int rootSize = 80;
+            Int32.TryParse(value.RootSize, out rootSize);
+            int userSize = 50;
+            Int32.TryParse(value.UserSize, out userSize);
+            int timeout = 1;
+            Int32.TryParse(value.Hours, out timeout);
 
-            Process batchProcess = new Process();
-            batchProcess.StartInfo = processInfo;
-            batchProcess.EnableRaisingEvents = true;
-            batchProcess.Exited += new EventHandler(ReadTextFile);
-
-            batchProcess.Start();
-
-            await Task.WhenAny(_readFileComplete.Task);
-
-            return Output;
-        }
-    
-        public static void  ReadTextFile(object sender, EventArgs e)
-        {
-            string fileName = Environment.CurrentDirectory + "\\batchOutput.txt";
-            StreamReader reader = new StreamReader(fileName);
-            StringBuilder sb = new StringBuilder();
-
-            string line = reader.ReadLine();
-            while (line != null)
+            WorkspaceProperties wsProps = new WorkspaceProperties()
             {
-                sb.Append(line);
-                line = reader.ReadLine();
+                RootVolumeSizeGib = rootSize,
+                RunningMode = new RunningMode(value.RunMode),
+                UserVolumeSizeGib = userSize,
+            };
+
+            if (value.RunMode == "AUTO_STOP")
+            {
+                wsProps.RunningModeAutoStopTimeoutInMinutes = timeout * 60;
             }
 
-            reader.Close();
+            WorkspaceRequest wsReq = new WorkspaceRequest()
+            {
+                BundleId = value.BundleId,
+                DirectoryId = value.DirectoryId,
+                UserName = value.UserName,
+                WorkspaceProperties = wsProps
+            };
 
-            Output = sb.ToString();
-            System.IO.File.WriteAllText(fileName, "");
+            createReq.Workspaces.Add(wsReq);
 
-            _readFileComplete.SetResult(true);
+            CreateWorkspacesResponse createResponse = await client.CreateWorkspacesAsync(createReq);
+
+
+            string wsId = "Creation Failed";
+            if (createResponse != null && createResponse.PendingRequests.Count > 0)
+                wsId = createResponse.PendingRequests[0].WorkspaceId;
+
+            return wsId;
         }
+
+
 
     }
 
 }
-

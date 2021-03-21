@@ -23,7 +23,7 @@
         </div>
         <div class="top-row-2">
             <div class="content-left">
-                <table>
+                <table class="table-horizontal">
                     <thead>
                         <tr>
                             <th>WorkSpace Owner</th>
@@ -36,6 +36,12 @@
                         </tr>
                     </thead>
                     <tbody id="insertAttackInfo">
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -59,9 +65,6 @@
                     <tr>
                         <th>Keystrokes</th>
                         <th>Date & Time</th>
-                        @*<th>WorkSpace Owner</th>
-                            <th>WorkSpace ID</th>
-                            <th>Attacker IP</th>*@
                     </tr>
                 </thead>
                 <tbody id="insertKeylogs">
@@ -81,85 +84,86 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var ws in Model.result.Workspaces){ 
-                    <tr>
-                        @{
-                            foreach (var bd in Model.result2.Bundles)
-                            {
-                                if (!Model.bundle_dicts.ContainsKey(bd.BundleId))
+                    @foreach (var ws in Model.result.Workspaces)
+                    {
+                        <tr>
+                            @{
+                                foreach (var bd in Model.result2.Bundles)
                                 {
-                                    Model.bundle_dicts.Add(bd.BundleId, bd.Name);
+                                    if (!Model.bundle_dicts.ContainsKey(bd.BundleId))
+                                    {
+                                        Model.bundle_dicts.Add(bd.BundleId, bd.Name);
+                                    }
                                 }
                             }
-                        }
-                        @if (Model.bundle_dicts.ContainsKey(ws.BundleId))
-                        {
-                            <td>@Model.bundle_dicts[ws.BundleId]</td>
-                        }
-                        else
-                        {
-                            <td></td>
-                        }
-                        <td>@ws.UserName</td>
-                        @{
-                            var text_cond = "nothing";
-                        }
-                        @if (ws.State == "STOPPED")
-                        {
-                            text_cond = "text-stopped";
-                        }
-                        else if (ws.State == "PENDING")
-                        {
-                            text_cond = "text-pending";
-                        }
-                        else if (ws.State == "AVAILABLE")
-                        {
-                            text_cond = "text-available";
-                        }
-                        else if (ws.State == "STARTING")
-                        {
-                            text_cond = "text-running";
-                        }
-                        else if (ws.State == "TERMINATING")
-                        {
-                            text_cond = "text-terminating";
-                        }
-                        else
-                        {
-                            text_cond = "text-black";
-                        }
-                        <td><span class="@text_cond">@ws.State</span></td>
+                            @if (Model.bundle_dicts.ContainsKey(ws.BundleId))
+                            {
+                                <td>@Model.bundle_dicts[ws.BundleId]</td>
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            <td>@ws.UserName</td>
+                            @{
+                                var text_cond = "nothing";
+                            }
+                            @if (ws.State == "STOPPED")
+                            {
+                                text_cond = "text-stopped";
+                            }
+                            else if (ws.State == "PENDING")
+                            {
+                                text_cond = "text-pending";
+                            }
+                            else if (ws.State == "AVAILABLE")
+                            {
+                                text_cond = "text-available";
+                            }
+                            else if (ws.State == "STARTING")
+                            {
+                                text_cond = "text-running";
+                            }
+                            else if (ws.State == "TERMINATING")
+                            {
+                                text_cond = "text-terminating";
+                            }
+                            else
+                            {
+                                text_cond = "text-black";
+                            }
+                            <td><span class="@text_cond">@ws.State</span></td>
 
-                        @if (ws.State != "STOPPED" || ws.State == "TERMINATING" || ws.State == "TERMINATED" || ws.WorkspaceProperties.RunningMode != "AUTO_STOP")
-                        {
-                            <td><input  class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" disabled /></td>
-                        }
-                        else
-                        {
-                            <td><input class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" /></td>
-                        }
+                            @if (ws.State != "STOPPED" || ws.State == "TERMINATING" || ws.State == "TERMINATED" || ws.WorkspaceProperties.RunningMode != "AUTO_STOP")
+                            {
+                                <td><input class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" disabled /></td>
+                            }
+                            else
+                            {
+                                <td><input class="starting_ws" type="checkbox" value="@ws.WorkspaceId" onclick="addCostToTotal(event)" /></td>
+                            }
 
-                    </tr>
-                   
+                        </tr>
+
                     }
                     @*<tr>
-                        <td>Admin</td>
-                        <td>joseph</td>
-                        <td><span class="text-stopped">Stopped</span></td>
-                        <td><input type="checkbox" value="joseph" onclick="addCostToTotal(event)" /></td>
-                    </tr>
-                    <tr>
-                        <td>Engineer</td>
-                        <td>jake</td>
-                        <td><span class="text-stopped">Stopped</span></td>
-                        <td><input type="checkbox" value="jake" onclick="addCostToTotal(event)" /></td>
-                    </tr>
-                    <tr>
-                        <td>HR Manager</td>
-                        <td>justin</td>
-                        <td><span class="text-stopped">Stopped</span></td>
-                        <td><input type="checkbox" value="justin" onclick="addCostToTotal(event)" /></td>
-                    </tr>*@
+                            <td>Admin</td>
+                            <td>joseph</td>
+                            <td><span class="text-stopped">Stopped</span></td>
+                            <td><input type="checkbox" value="joseph" onclick="addCostToTotal(event)" /></td>
+                        </tr>
+                        <tr>
+                            <td>Engineer</td>
+                            <td>jake</td>
+                            <td><span class="text-stopped">Stopped</span></td>
+                            <td><input type="checkbox" value="jake" onclick="addCostToTotal(event)" /></td>
+                        </tr>
+                        <tr>
+                            <td>HR Manager</td>
+                            <td>justin</td>
+                            <td><span class="text-stopped">Stopped</span></td>
+                            <td><input type="checkbox" value="justin" onclick="addCostToTotal(event)" /></td>
+                        </tr>*@
                 </tbody>
             </table>
             <br />
@@ -175,7 +179,7 @@
     <h1>Setup WorkSpaces</h1>
     <br />
     <br />
-    <form method="post">
+    @*<form method="post">*@
 
         <fieldset class="form-list">
             <legend class="form-text-blue">WorkSpace Image</legend>
@@ -183,33 +187,21 @@
                 foreach (var item in Model.result2.Bundles)
                 {
                     <div>
-                        <input type="radio" name="role" value="@item.Name" />
-                        <label for="@item.Name">@item.Name</label>
+                        <input type="radio" name="role" value="@item.BundleId" />
+                        <label for="role">@item.Name</label>
                     </div>
                 }
             }
-            @*<div>
-            <input type="radio" name="role" value="Engineer" />
-            <label for="Engineer">Engineer</label>
-        </div>
-        <div>
-            <input type="radio" name="role" value="HRManager" />
-            <label for="HRManager">HRManager</label>
-        </div>
-        <div>
-            <input type="radio" name="role" value="Admin" />
-            <label for="Admin">Admin</label>
-        </div>*@
         </fieldset>
 
         <div id="volumeSizeSelector">
             <label for="volumeSize" class="form-text-blue">Choose root volume & user volume size: </label>
             <br />
             <select id="volume_choices" name="volumeSize">
-                <option class="volPair" value="volPair1">Root 80GB - User 10GB</option>
-                <option class="volPair" value="volPair2">Root 80GB - User 50GB</option>
-                <option class="volPair" value="volPair3">Root 80GB - User 100GB</option>
-                <option class="volPair" value="volPair4">Root 175GB - User 100GB</option>
+                <option class="volPair" id="volPair1" value="80,10">Root 80GB - User 10GB</option>
+                <option class="volPair" id="volPair2" value="80,50">Root 80GB - User 50GB</option>
+                <option class="volPair" id="volPair3" value="80,100">Root 80GB - User 100GB</option>
+                <option class="volPair" id="volPair4" value="175,100">Root 175GB - User 100GB</option>
             </select>
         </div>
         <br />
@@ -217,25 +209,29 @@
 
         <fieldset class="form-list">
             <legend class="form-text-blue">Running Mode</legend>
-            <div>
-                <input class="runningMode" type="radio" name="runningMode" value="AlwaysOn" onclick="toggleHoursSelector(event)" />
-                <label for="runningMode">AlwaysOn</label>
-            </div>
-            <div>
-                <input class="runningMode" type="radio" name="runningMode" value="AutoStop" onclick="toggleHoursSelector(event)" />
-                <label for="runningMode">AutoStop</label>                           @*check the for *@
-
+            <div class="form-list-row">
+                <div>
+                    <div>
+                        <input class="runningMode" type="radio" name="runningMode" value="ALWAYS_ON" onclick="toggleHoursSelector(event)" checked />
+                        <label for="runningMode">AlwaysOn</label>
+                    </div>
+                    <div>
+                        <input class="runningMode" type="radio" name="runningMode" value="AUTO_STOP" onclick="toggleHoursSelector(event)" />
+                        <label for="runningMode">AutoStop</label>                           @*check the for *@
+                    </div>
+                </div>
                 <div id="hoursSelector" class="hidden-view">
                     <label for="numHours">Number of hours before AutoStop: </label>
                     <br />
-                    <select name="numHours">
+                    <select name="numHours" id="numHours">
                         @for (int i = 1; i <= 48; i++)
                         {
-                            <option value="@i">@i</option>
+                            <option class="hours" value="@i">@i</option>
                         }
                     </select>
                 </div>
             </div>
+
         </fieldset>
         <br />
 
@@ -245,27 +241,22 @@
             <br />
             <select name="userName">
                 @{
-                    foreach (var uName in Model.getMyUsernames.Users)
+                    foreach (var uName in Model.Usernames)
                     {
-                        <option value="@uName.Username">@uName.Username</option>
+                        <option class="username" value="@uName">@uName</option>
                     }
                 }
-                @*<option value="justin">justin</option>
-        <option value="eric">eric</option>
-        <option value="jake">jake</option>
-        <option value="daniel">daniel</option>
-        <option value="joseph">joseph</option>*@
-
             </select>
         </div>
+        <input type="hidden" name="directoryId" value="@Model.DirectoryId" />
 
         <br />
         <br />
-        <h5>Cost To Set Up This WorkSpace: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="setupCost"></span></h5>
+        <h5>Cost To Set Up This WorkSpace: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="setupCost">Monthly pricing: $33</span></h5>
         <br />
         <br />
-        <button type="submit">Generate WorkSpace</button>
-    </form>
+        <button id="configBtn">Generate WorkSpace</button>
+    @*</form>*@
 
 </div>
 

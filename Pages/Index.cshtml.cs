@@ -22,8 +22,12 @@ namespace MonitoringConsole.Pages
         public DescribeWorkspaceBundlesResponse result2 { get; set; }
 
         public DescribeUsersResponse  getMyUsernames { get; set; }
+        public HashSet<string> Usernames { get; set; }
+
         private readonly ILogger<IndexModel> _logger;
-        private TaskCompletionSource<bool> _readFileComplete;
+       
+
+        public string DirectoryId { get; set; }
         public IndexModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
@@ -31,41 +35,29 @@ namespace MonitoringConsole.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            //await GetDeployInfo();
             AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
             result = await client.DescribeWorkspacesAsync();
             result2 = await client.DescribeWorkspaceBundlesAsync();
             AmazonWorkDocsClient wdcs_client = new AmazonWorkDocsClient();
 
             DescribeUsersRequest dur = new DescribeUsersRequest();
-            dur.OrganizationId = "d-90676026fa";
+            DirectoryId = dur.OrganizationId = "d-90676026fa";
             getMyUsernames = await wdcs_client.DescribeUsersAsync(dur);
+
+            Usernames = new HashSet<string>();
+            foreach (var user in getMyUsernames.Users)
+                Usernames.Add(user.Username);
+
+            foreach (var ws in result.Workspaces)
+                if (Usernames.Contains(ws.UserName))
+                    Usernames.Remove(ws.UserName);
+
+
+            client.Dispose();
             return Page();
         }
 
-        public async Task GetDeployInfo ()
-        {
-            //command to run: aws workspaces describe-workspaces > MyJson.json
-            _readFileComplete = new TaskCompletionSource<bool>();
-            string path = Environment.CurrentDirectory + "\\getdeployinfo.bat";
-
-            ProcessStartInfo processInfo = new ProcessStartInfo(path);
-            processInfo.UseShellExecute = true;
-
-            Process batchProcess = new Process();
-            batchProcess.StartInfo = processInfo;
-            batchProcess.EnableRaisingEvents = true;
-            //batchProcess.Exited += new EventHandler(ReadTextFile);
-
-            batchProcess.Start();
-
-            await Task.WhenAny(_readFileComplete.Task);
-
-            //return Output;
-
-            
-        }
-
+      
        
     }
 }

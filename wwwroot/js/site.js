@@ -1,11 +1,3 @@
-//function to place the buttons in the blue bar and update their position responsively
-//function placeButtons() {
-//    let coords = document.getElementById("topContent").getBoundingClientRect();
-//    document.getElementById("buttons").style.setProperty("--left-offset", coords.left + "px");
-//}
-
-//placeButtons();
-//window.addEventListener("resize", placeButtons);
 
 var attackData = {
     attackerIP: "",
@@ -153,11 +145,12 @@ function displayKeylogs(notification, timeStamp) {
 }
 
 function displayAttackInfo() {
-    let row = document.createElement("tr");
+    let infoTBody = document.getElementById("insertAttackInfo");
+    let rows = infoTBody.getElementsByTagName("tr");
 
-    row.innerHTML = "<td>" + attackData.userName + "</td><td>" + attackData.workSpaceId + "</td><td>" + attackData.attackerIP + "</td>";
-
-    document.getElementById("insertAttackInfo").append(row);
+    rows[0].innerHTML += "<td>" + attackData.userName + "</td>";
+    rows[1].innerHTML += "<td>" + attackData.workSpaceId + "</td>";
+    rows[2].innerHTML += "<td>" + attackData.attackerIP + "</td>";
 }
 
 function switchAttacks(time) {
@@ -268,35 +261,6 @@ function saveAttackLog() {
 }
 
 
-
-//setup
-
-
-//var setup = document.getElementById("setup");
-//setup.addEventListener("click", setupWorkspace);
-
-//function setupWorkspace() {
-//    let url = '../../api/SetupWorkspace/';
-//    let paramObj = {
-//        method: "POST",
-//        headers: {
-//            "Content-Type": "application/json"
-//        },
-//        body: JSON.stringify({    //later we can perform an initial GET to a service that gives us these parameters
-//            DirectoryId: 'test',
-//            UserName: 'test',
-//            BundleId: 'test'
-//        })
-//    };
-
-//    fetch(url, paramObj)
-//        .then(data => data.json())
-//        .then(data => JSON.stringify(data))
-//        .then(data => alert(data));
-//}
-
-
-
 //threat level indicator
 var threatScore = 0;
 var lastTimeSeen;
@@ -345,70 +309,6 @@ function determineThreat(s, t) {
     //updateThermometer();
     updateThreatLevel();
 }
-
-//function updateThermometer() {
-//    let level0 = document.getElementById("LowTherm");
-//    let level1 = document.getElementById("ElevatedTherm");
-//    let level2 = document.getElementById("ModerateTherm");
-//    let level3 = document.getElementById("HighTherm");
-//    let level4 = document.getElementById("CriticalTherm");
-
-//    if (threatScore < 50) {
-//        unfillTherm([level1, level2, level3, level4]);
-//        fillTherm([level0]);
-//        document.documentElement.style.setProperty("--thermometer-background", "#008000");
-//        turnThermTextWhite([level0]);
-//        turnThermTextBlack([level1, level2, level3, level4]);
-//    }
-//    else if (threatScore < 100) {
-//        unfillTherm([level2, level3, level4]);
-//        fillTherm([level0, level1]);
-//        document.documentElement.style.setProperty("--thermometer-background", "gold");
-//        turnThermTextBlack([level0, level1, level2, level3, level4]);
-//    }
-//    else if (threatScore < 150) {
-//        unfillTherm([level3, level4]);
-//        fillTherm([level0, level1, level2]);
-//        document.documentElement.style.setProperty("--thermometer-background", "#ff8c00");
-//        turnThermTextBlack([level0, level1, level2, level3, level4]);
-//    }
-//    else if (threatScore < 200) {
-//        unfillTherm([level4]);
-//        fillTherm([level0, level1, level2, level3]);
-//        document.documentElement.style.setProperty("--thermometer-background", "#ff0000");
-//        turnThermTextBlack([level0, level1, level2, level3, level4]);
-//    }
-//    else {
-//        fillTherm([level0, level1, level2, level3, level4]);
-//        document.documentElement.style.setProperty("--thermometer-background", "black");
-//        turnThermTextWhite([level0, level1, level2, level3, level4]);
-//    }
-//}
-
-
-//function turnThermTextBlack(levels) {
-//    for (let item of levels) {
-//        item.classList.remove("thermWhiteText");
-//        item.classList.add("thermBlackText");
-//    }
-//}
-
-//function turnThermTextWhite(levels) {
-//    for (let item of levels) {
-//        item.classList.remove("thermBlackText");
-//        item.classList.add("thermWhiteText");
-//    } 
-//} 
-
-//function fillTherm(levels) {
-//    for (let item of levels)
-//        item.classList.add("filled");
-//}
-
-//function unfillTherm(levels) {
-//    for (let item of levels)
-//        item.classList.remove("filled");
-//}
 
 // popup function (terminate)
 function togglePopup() {
@@ -471,20 +371,6 @@ document.getElementById("deploy").addEventListener("click", toggleDeployMenu);
 //}
 
 
-//display cost on setup page:
-
-var roles = document.getElementsByName("role");
-var prev = null;
-
-for (let i = 0; i < roles.length; i++) {
-    roles[i].addEventListener("change", function () {
-        if (this != prev) {
-            prev = this;
-            document.getElementById("setupCost").innerHTML = "$9.75/month, plus $0.30/hour"
-        }
-    });
-}
-
 //toggle status on deploy menu:
 
 function changeDeployStatus(e) {
@@ -499,12 +385,6 @@ function changeDeployStatus(e) {
     sender.disabled = true;
 
 }
-
-//var costToDeploy = {
-//    "justin": 3,
-//    "jake": 3,
-//    "joseph": 3
-//}
 
 
 function addCostToTotal(e) {
@@ -534,6 +414,7 @@ function toggleHoursSelector(e) {
 //var ds = getElementById('deployBtn');
 //ds.addEventListener("click", DeploySelected);
 var ws_cname = document.getElementsByClassName('starting_ws');
+
 function DeploySelected() {
     var myList = []
     for (var i = 0; i < ws_cname.length; i++) {
@@ -573,7 +454,14 @@ VolumeChoice.addEventListener("change", ConfigWorkspaceCost);
 
 var run_mode = document.getElementsByClassName("runningMode");
 var vol_pair = document.getElementsByClassName("volPair");
-var myWorkspacePrices = [{ "monthly": 7.25, "hourly": .3, "flat-monthly": 33 }, { "monthly": 9.75, "hourly": .3, "flat-monthly": 35 }, { "monthly": 13, "hourly": .3, "flat-monthly": 38 }, { "monthly": 19, "hourly": .3, "flat-monthly": 44}]
+var myWorkspacePrices =
+    [
+        { "monthly": 7.25, "hourly": .3, "flat-monthly": 33 },
+        { "monthly": 9.75, "hourly": .3, "flat-monthly": 35 },
+        { "monthly": 13, "hourly": .3, "flat-monthly": 38 },
+        { "monthly": 19, "hourly": .3, "flat-monthly": 44 }
+    ];
+
 function ConfigWorkspaceCost() {
     var hold_run_mode = "";
     for (var int = 0; int < run_mode.length; int++) {
@@ -586,31 +474,114 @@ function ConfigWorkspaceCost() {
         if (vol_pair[int].selected)
             hold_vol_pair = vol_pair[int];
     }
-    switch (hold_vol_pair.getAttribute("value")) {
-            case "volPair1":
-                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
-                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[0]["flat-monthly"];
-                else
-                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[0]["monthly"] + " per month and " + "$" + myWorkspacePrices[0]["hourly"] + " hourly";
-                break;
-            case "volPair2":
-                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
-                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[1]["flat-monthly"];
-                else
-                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[1]["monthly"] + " per month and " + "$"  + myWorkspacePrices[1]["hourly"] + " hourly";
-                break;
-            case "volPair3":
-                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
-                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[2]["flat-monthly"];
-                else
-                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[2]["monthly"] + " per month and " + "$" +myWorkspacePrices[2]["hourly"] + " hourly";
-                break;
-            case "volPair4":
-                if (hold_run_mode.getAttribute("value") == "AlwaysOn")
-                    document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[3]["flat-monthly"];
-                else
-                    document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[3]["monthly"] + " per month and " + "$" + myWorkspacePrices[3]["hourly"] + " hourly";
-                break;
+    switch (hold_vol_pair.getAttribute("id")) {
+        case "volPair1":
+            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[0]["flat-monthly"];
+            else
+                document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[0]["monthly"] + " per month and " + "$" + myWorkspacePrices[0]["hourly"] + " hourly";
+            break;
+        case "volPair2":
+            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[1]["flat-monthly"];
+            else
+                document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[1]["monthly"] + " per month and " + "$" + myWorkspacePrices[1]["hourly"] + " hourly";
+            break;
+        case "volPair3":
+            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[2]["flat-monthly"];
+            else
+                document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[2]["monthly"] + " per month and " + "$" + myWorkspacePrices[2]["hourly"] + " hourly";
+            break;
+        case "volPair4":
+            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+                document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[3]["flat-monthly"];
+            else
+                document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[3]["monthly"] + " per month and " + "$" + myWorkspacePrices[3]["hourly"] + " hourly";
+            break;
+    }
+}
+
+
+//setup workspaces:
+
+var setup = document.getElementById("configBtn");
+setup.addEventListener("click", setupWorkspace);
+
+function setupWorkspace() {
+
+    let bodyObj = getInputsFromForm();
+   
+
+    let url = '../../api/SetupWorkspace/';
+    let paramObj = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(bodyObj)
+    };
+
+    fetch(url, paramObj)
+        .then(data => console.log(data));
+}
+
+function getInputsFromForm() {
+    //get bundleid
+    let bundleId;
+    let bundleList = document.getElementsByName("role");
+    for (let i = 0; i < bundleList.length; i++) {
+        if (bundleList[i].checked)
+            bundleId = bundleList[i].getAttribute("value");
+    }
+
+    //get volume sizes
+    let hold_vol_pair = "";
+    for (let int = 0; int < vol_pair.length; int++) {
+        if (vol_pair[int].selected)
+            hold_vol_pair = vol_pair[int].getAttribute("value");
+    }
+
+    let sizes = hold_vol_pair.split(",");
+
+    let rootSize = sizes[0];
+    let userSize = sizes[1];
+
+    //get running mode
+    var hold_run_mode = "";
+    for (let int = 0; int < run_mode.length; int++) {
+        if (run_mode[int].checked)
+            hold_run_mode = run_mode[int].getAttribute("value");
+    }
+
+    let hours = "";
+    if (hold_run_mode === "AUTO_STOP") {
+        let hoursChoices = document.getElementsByClassName("hours");
+        for (let i = 0; i < hoursChoices.length; i++) {
+            if (hoursChoices[i].selected)
+                hours = hoursChoices[i].getAttribute("value");
         }
     }
 
+    //get username
+    let username = "";
+    let usernameOptions = document.getElementsByClassName("username");
+    for (let i = 0; i < usernameOptions.length; i++) {
+        if (usernameOptions[i].selected)
+            username = usernameOptions[i].getAttribute("value");
+    }
+
+    let directoryId = document.getElementsByName("directoryId")[0].getAttribute("value");
+
+    let obj = {
+        BundleId: bundleId,
+        RootSize: rootSize,
+        UserSize: userSize,
+        RunMode: hold_run_mode,
+        Hours: hours,
+        UserName: username,
+        DirectoryId: directoryId
+    }
+
+    return obj;
+}
