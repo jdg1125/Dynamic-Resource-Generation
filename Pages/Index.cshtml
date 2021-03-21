@@ -179,18 +179,27 @@
 
         <fieldset class="form-list">
             <legend class="form-text-blue">WorkSpace Image</legend>
-            <div>
-                <input type="radio" name="role" value="Engineer" />
-                <label for="Engineer">Engineer</label>
-            </div>
-            <div>
-                <input type="radio" name="role" value="HRManager" />
-                <label for="HRManager">HRManager</label>
-            </div>
-            <div>
-                <input type="radio" name="role" value="Admin" />
-                <label for="Admin">Admin</label>
-            </div>
+            @{
+                foreach (var item in Model.result2.Bundles)
+                {
+                    <div>
+                        <input type="radio" name="role" value="@item.Name" />
+                        <label for="@item.Name">@item.Name</label>
+                    </div>
+                }
+            }
+            @*<div>
+            <input type="radio" name="role" value="Engineer" />
+            <label for="Engineer">Engineer</label>
+        </div>
+        <div>
+            <input type="radio" name="role" value="HRManager" />
+            <label for="HRManager">HRManager</label>
+        </div>
+        <div>
+            <input type="radio" name="role" value="Admin" />
+            <label for="Admin">Admin</label>
+        </div>*@
         </fieldset>
 
         <div id="volumeSizeSelector">
@@ -235,11 +244,17 @@
             <label for="userName" class="form-text-blue">Choose username: </label>
             <br />
             <select name="userName">
-                <option value="justin">justin</option>
-                <option value="eric">eric</option>
-                <option value="jake">jake</option>
-                <option value="daniel">daniel</option>
-                <option value="joseph">joseph</option>
+                @{
+                    foreach (var uName in Model.getMyUsernames.Users)
+                    {
+                        <option value="@uName.Username">@uName.Username</option>
+                    }
+                }
+                @*<option value="justin">justin</option>
+        <option value="eric">eric</option>
+        <option value="jake">jake</option>
+        <option value="daniel">daniel</option>
+        <option value="joseph">joseph</option>*@
 
             </select>
         </div>
