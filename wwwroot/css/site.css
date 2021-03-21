@@ -43,6 +43,16 @@ nav {
     grid-template-rows: 39% 61%;
 }
 
+.table-horizontal {
+    display: flex;
+    flex-direction: row;
+}
+
+.table-horizontal td, .table-horizontal th {
+    
+    padding: 12px;
+}
+
 .top-row-2 {
     display: grid;
     grid-column-gap: 2rem;
@@ -399,4 +409,13 @@ nav {
 .text-black {
     color: black;
     font-weight: bolder;
+}
+
+.form-list-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#hoursSelector {
+    padding-left: 50px;
 }
