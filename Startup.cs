@@ -33,7 +33,7 @@ namespace MonitoringConsole
                 sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
 
             services.AddSingleton<IMongoDBService, MongoDBService>();
-
+            services.AddSingleton<IAWSService, AWSService>();
             services.AddRazorPages();
         }
 
@@ -62,6 +62,10 @@ namespace MonitoringConsole
             {
                 endpoints.MapControllers();
                 endpoints.MapRazorPages();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+           
             });
         }
     }

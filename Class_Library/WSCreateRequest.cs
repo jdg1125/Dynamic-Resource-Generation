@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MonitoringConsole.Class_Library
 {
-    public class WorkspaceCreate
+    public class WSCreateRequest
     {
         public string BundleId { get; set; }
 

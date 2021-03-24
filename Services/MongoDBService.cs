@@ -18,7 +18,6 @@ namespace MonitoringConsole.Services
         {
             _client = new MongoClient(settings.ConnectionString);     
             _db = _client.GetDatabase("DRG_DB");
-
         }
 
         public async Task<ObjectId> AddAttacker(Attacker attacker)
@@ -65,7 +64,6 @@ namespace MonitoringConsole.Services
             await collection.InsertOneAsync(value);
 
             return (ObjectId)value.GetValue(0);
-
         }
 
         public async Task UpdateAttack(State attacklog)
@@ -83,7 +81,27 @@ namespace MonitoringConsole.Services
             var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackerId));
             var update = Builders<BsonDocument>.Update.Push("Attacks", new ObjectId(attacklog.AttackId));
             await collection.UpdateOneAsync(filter, update);
-
         }
+
+        public async Task<List<Attack>> GetAttackByBundleId(string bundleId)
+        {
+            IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
+
+            var filter = Builders<BsonDocument>.Filter.Eq("BundleId", bundleId);
+
+            var resultList = await (await collection.FindAsync(filter)).ToListAsync();
+            List<Attack> attacks = new List<Attack>();
+
+            if (resultList != null && resultList.Count >= 1)
+            {
+                foreach(var result in resultList)
+                {
+                    Attack att = BsonSerializer.Deserialize<Attack>(result);
+                    attacks.Add(att);
+                }
+            }
+            return attacks;
+        }
+
     }
 }

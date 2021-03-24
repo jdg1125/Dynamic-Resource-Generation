@@ -134,10 +134,27 @@ namespace MonitoringConsole.api
         }
 
         // GET: api/<DBController>
+        [Route("attacksByBundleId/{id?}")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<List<string>> GetAttacksByBundleId(string id)
         {
-            return new string[] { "value1", "value2" };
+            List<Attack> result = await _context.GetAttackByBundleId(id);
+            TimeSpan mean = new TimeSpan(0, 0, 0);
+            TimeSpan median;
+            TimeSpan[] sortedDurations = new TimeSpan[result.Count];
+            
+            for(int i=0; i< result.Count; i++)
+            {
+                TimeSpan duration = result[i].End_Time - result[i].Start_Time;
+                sortedDurations[i]=duration;
+                mean += duration;
+            }
+
+            Array.Sort(sortedDurations);
+            mean /= sortedDurations.Length;
+            median = sortedDurations[sortedDurations.Length / 2];
+
+            return new List<string>() { mean.TotalMinutes.ToString(), median.TotalMinutes.ToString() };
         }
 
         // PUT api/<DBController>/5

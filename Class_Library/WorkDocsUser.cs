@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace MonitoringConsole.Class_Library
 {
-    public class StartWorkspace
+    public class WorkDocsUser
     {
-        public List<string> StartWorkspaceList { get; set; }
+        public string Username { get; set; }
+        public bool HasWorkspace { get; set; }
     }
 }

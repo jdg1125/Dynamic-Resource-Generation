@@ -93,8 +93,6 @@ function processKeylogs(data) {
 
 }
 
-
-
 function getAttackerInfo(msg, time) {
     if (msg.length > 39 && msg.substring(0, 39) === "AWS Alert - possible WorkSpace attack. ") {
         if (attackData.attackerIP != "")  //we are inside an attack and we need to switch contexts to set up environment for another attack.
@@ -108,6 +106,7 @@ function getAttackerInfo(msg, time) {
         attackData.workSpaceId = s.substring(0, s.indexOf(' '));
         s = s.substring(attackData.workSpaceId.length + 1);
         attackData.userName = s;
+
 
         displayAttackInfo();   //fill attack table 
 
@@ -148,9 +147,15 @@ function displayAttackInfo() {
     let infoTBody = document.getElementById("insertAttackInfo");
     let rows = infoTBody.getElementsByTagName("tr");
 
-    rows[0].innerHTML += "<td>" + attackData.userName + "</td>";
-    rows[1].innerHTML += "<td>" + attackData.workSpaceId + "</td>";
-    rows[2].innerHTML += "<td>" + attackData.attackerIP + "</td>";
+    let url = '../../api/DescribeResources/userById/' + attackData.workSpaceId;
+    fetch(url)
+        .then(data => data.json())
+        .then(data => {
+            attackData.userName = data.username;
+            rows[0].innerHTML = "<td>" + attackData.userName + "</td>";
+            rows[1].innerHTML = "<td>" + attackData.workSpaceId + "</td>";
+            rows[2].innerHTML = "<td>" + attackData.attackerIP + "</td>";
+        });
 }
 
 function switchAttacks(time) {
@@ -177,7 +182,6 @@ function switchAttacks(time) {
     rowCount = 1;
 
     threatScore = 0;
-    //updateThermometer();
     updateThreatLevel();
 
     performingCleanup = false;
@@ -185,28 +189,95 @@ function switchAttacks(time) {
 
 
 //terminate
-var terminate_bttn = document.getElementById("terminate");
-terminate_bttn.addEventListener("click", terminateWorkspace);
-terminate_bttn.addEventListener("click", togglePopup);
+var terminateNavBtn = document.getElementById("terminate");
+terminateNavBtn.addEventListener("click", displayTerminateOptions);
+terminateNavBtn.addEventListener("click", togglePopup);
+var termCompleteBtn = document.getElementById("termComplete");
+termCompleteBtn.addEventListener("click", terminateWorkspaces);
 
-function terminateWorkspace() {
+function displayTerminateOptions() {
+    let url = '../../api/DescribeResources/userById/' + attackData.workSpaceId;
+    fetch(url)
+        .then(data => data.json())
+        .then(data => {
+            document.getElementById("outerEnv").setAttribute("value", attackData.workSpaceId);
+            document.getElementById("outerEnvLabel").innerHTML = data.username;
+        })
+        .catch(() => {
+            alert("To do: disable button until attack begins");
+        });
+
+
+    url = '../../api/DescribeResources/availWorkspaces';
+    let wsList;
+    fetch(url)
+        .then(data => data.json())
+        .then(data => {
+            wsList = data;
+            populateTermForm(wsList); //generate checkboxes for workspaces and add them to popup
+        });
+}
+
+function populateTermForm(workspaces) {
+    let prevBoxes = document.getElementsByClassName("checkbox-clone");  //underlying collection resizes when removeChild is called - therefore, iterate backwards
+
+    for (let i = prevBoxes.length - 1; i >= 0; i--) {
+        prevBoxes[i].parentElement.removeChild(prevBoxes[i]);  //clear previous entries
+    }
+
+    let baseDiv = document.getElementById("checkbox-template");
+    let template = baseDiv.cloneNode(true);
+    template.removeAttribute("id");
+    template.classList.toggle("hidden-view");
+    template.classList.toggle("checkbox-clone");
+
+    let container = document.getElementById("terminateForm");
+
+    for (let ws of workspaces) {
+        if (ws.workspaceId != attackData.workSpaceId) {
+            let clone = template.cloneNode(true);
+            clone.getElementsByTagName("input")[0].setAttribute("value", ws.workspaceId);
+            clone.getElementsByTagName("label")[0].innerHTML = ws.userName;
+            container.appendChild(clone);
+        }
+    }
+}
+
+function terminateWorkspaces() {
+    let checkboxes = document.getElementsByName("wsToTerm");
+    let wsList = [];
+
+    for (let elem of checkboxes) {
+        if (elem.checked)
+            wsList.push(elem.getAttribute("value"));
+    }
+
     let url = '../../api/TerminateWorkspace/';
     let paramObj = {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({    //to get workpace info, call a service that runs: aws workspaces describe-workspaces --workspace-ids <workspace-id>
-            DirectoryId: 'test',
-            UserName: 'test',
-            BundleId: 'test'
+        body: JSON.stringify({
+            Workspaces: wsList
         })
     };
 
     fetch(url, paramObj)
         .then(data => data.json())
         .then(data => JSON.stringify(data))
-        .then(data => console.log(data))
+        .then(data => {
+            let termResult = document.getElementById("termResult");
+            if (data.length != 0) {
+                termResult.innerHTML += "Failed terminate requests: " + "<br />"
+                for (let i = 0; i < data.length; i++)
+                    termResult.innerHTML += data[i].workspaceId + "<br />";
+            }
+            else {
+                termResult.innerHTML += "All terminate requests succeeded";
+            }
+
+        })
         .then(saveAttackLog);
 }
 
@@ -315,8 +386,6 @@ function togglePopup() {
     document.getElementById("popup_terminate").classList.toggle("active");
 }
 
-
-
 function updateThreatLevel() {
     let threatIndicator = document.getElementById("threatIndicator");
     let threatText = document.getElementById("threatText");
@@ -349,13 +418,17 @@ function updateThreatLevel() {
 
 function togglePageView() {
     document.getElementById("monitorView").classList.toggle("hidden-view");
-    document.getElementById("setupView").classList.toggle("hidden-view");
+    if (!document.getElementById("setupView").classList.toggle("hidden-view"))
+        getTimeStatsForBundle();
 }
 
 function toggleDeployMenu() {
-    document.getElementById("deployResourceMenu").classList.toggle("hidden-view");
     document.getElementById("bottomContent").classList.toggle("content-bottom-double");
+    if (!document.getElementById("deployResourceMenu").classList.toggle("hidden-view"))
+        refreshDeployTable();
 }
+
+
 
 document.getElementById("setup").addEventListener("click", togglePageView);
 document.getElementById("deploy").addEventListener("click", toggleDeployMenu);
@@ -373,42 +446,108 @@ document.getElementById("deploy").addEventListener("click", toggleDeployMenu);
 
 //toggle status on deploy menu:
 
-function changeDeployStatus(e) {
+//function changeDeployStatus(e) {
 
-    let sender = e.target;
-    let parent = sender.parentNode.parentNode;
+//    let sender = e.target;
+//    let parent = sender.parentNode.parentNode;
 
-    let status = parent.getElementsByTagName("span")[0];
-    status.innerHTML = "Starting";
-    status.classList.remove("text-stopped");
-    status.classList.add("text-starting");
-    sender.disabled = true;
+//    let status = parent.getElementsByTagName("span")[0];
+//    status.innerHTML = "Starting";
+//    status.classList.remove("text-stopped");
+//    status.classList.add("text-starting");
+//    sender.disabled = true;
 
-}
+//}
 
 
-function addCostToTotal(e) {
-    let sender = e.target;
-    let username = sender.getAttribute("value");
+function addCostToTotal() {
+    let sender = event.target;
+    //let username = sender.getAttribute("value");
     let prevCost = parseFloat(document.getElementById("deployCost").innerHTML);
     prevCost *= 10;
-    let tmp = prevCost + (sender.checked ? costToDeploy[username] : -costToDeploy[username]);
+    let tmp = prevCost + (sender.checked ? 3 /*costToDeploy[username]*/ : -3/*costToDeploy[username]*/);
     document.getElementById("deployCost").innerHTML = tmp / 10 == 0 ? "0.0" : tmp / 10;
+}
+
+var refreshDeployBtn = document.getElementById("refreshDeployBtn");
+refreshDeployBtn.addEventListener("click", refreshDeployTable);
+
+function refreshDeployTable() {
+    let url = '../../api/DescribeResources/getDeployable';
+    fetch(url)
+        .then(data => data.json())
+        .then(data => makeDeployTable(data));
+}
+
+function makeDeployTable(data) {
+    let deployTable = document.getElementById("deployTable");
+    deployTable.innerHTML = "";
+    let stateDict = {
+        "STOPPED": "text-stopped",
+        "PENDING": "text-pending",
+        "AVAILABLE": "text-available",
+        "STARTING": "text-running",
+        "TERMINATING": "text-terminating"
+    };
+
+    let wsList = data.workspaces;
+    //console.log(wsList[0]);
+    let bDict = data.bundles;
+    //console.log(bDict[0]);
+    for (let i = 0; i < wsList.length; i++) {
+        let ws = wsList[i];
+
+        let row = document.createElement("tr");
+        let role = document.createElement("td");
+        let username = document.createElement("td");
+        let status = document.createElement("td");
+        let ckbox = document.createElement("td");
+
+        role.innerHTML = bDict[ws.bundleId] === undefined ? "" : bDict[ws.bundleId];
+        username.innerHTML = ws.userName;
+
+        let stateSpan = document.createElement("span");
+        let spanClass = stateDict[ws.state.value] === undefined ? "text-black" : stateDict[ws.state.value];
+        stateSpan.classList.add(spanClass);
+        stateSpan.innerHTML = ws.state.value;
+
+        status.appendChild(stateSpan);
+
+        let inputTag = document.createElement("input");
+        inputTag.setAttribute("type", "checkbox");
+        inputTag.classList.add("starting_ws");
+        inputTag.setAttribute("value", ws.workspaceId);
+
+        if (ws.workspaceProperties.runningMode.value != "AUTO_STOP" || ws.state.value != "STOPPED") {
+            inputTag.disabled = true;
+        }
+        else {
+            inputTag.addEventListener("click", addCostToTotal);
+        }
+
+        ckbox.appendChild(inputTag);
+        row.appendChild(role);
+        row.appendChild(username);
+        row.appendChild(status);
+        row.appendChild(ckbox);
+
+        deployTable.appendChild(row);
+    }
 }
 
 function toggleHoursSelector(e) {
     let sender = e.target;
-    if (sender.getAttribute("value") === "AlwaysOn") {
+    if (sender.getAttribute("value") === "ALWAYS_ON") {
         document.getElementById("hoursSelector").classList.add("hidden-view");
     }
     else {
         document.getElementById("hoursSelector").classList.remove("hidden-view");
     }
+
+    ConfigWorkspaceCost();
 }
 
-//function getDeployInfo() {
-//    fetch(".\MyJson.json").then(data => data.JSON()).then(Response => DisplayDeployInfo(Response))
-//}
+
 
 
 //var ds = getElementById('deployBtn');
@@ -435,8 +574,10 @@ function DeploySelected() {
 
     fetch(url, paramObj)
         .then(data => data.json())
-        .then(data => JSON.stringify(data))
-        .then(data => alert(data));
+        .then(data => {
+            console.log("in deploySelected: " + JSON.stringify(data));
+        })
+        
 }
 
 
@@ -476,25 +617,25 @@ function ConfigWorkspaceCost() {
     }
     switch (hold_vol_pair.getAttribute("id")) {
         case "volPair1":
-            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+            if (hold_run_mode.getAttribute("value") == "ALWAYS_ON")
                 document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[0]["flat-monthly"];
             else
                 document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[0]["monthly"] + " per month and " + "$" + myWorkspacePrices[0]["hourly"] + " hourly";
             break;
         case "volPair2":
-            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+            if (hold_run_mode.getAttribute("value") == "ALWAYS_ON")
                 document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[1]["flat-monthly"];
             else
                 document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[1]["monthly"] + " per month and " + "$" + myWorkspacePrices[1]["hourly"] + " hourly";
             break;
         case "volPair3":
-            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+            if (hold_run_mode.getAttribute("value") == "ALWAYS_ON")
                 document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[2]["flat-monthly"];
             else
                 document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[2]["monthly"] + " per month and " + "$" + myWorkspacePrices[2]["hourly"] + " hourly";
             break;
         case "volPair4":
-            if (hold_run_mode.getAttribute("value") == "AlwaysOn")
+            if (hold_run_mode.getAttribute("value") == "ALWAYS_ON")
                 document.getElementById("setupCost").innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[3]["flat-monthly"];
             else
                 document.getElementById("setupCost").innerHTML = "$" + myWorkspacePrices[3]["monthly"] + " per month and " + "$" + myWorkspacePrices[3]["hourly"] + " hourly";
@@ -511,7 +652,7 @@ setup.addEventListener("click", setupWorkspace);
 function setupWorkspace() {
 
     let bodyObj = getInputsFromForm();
-   
+
 
     let url = '../../api/SetupWorkspace/';
     let paramObj = {
@@ -584,4 +725,27 @@ function getInputsFromForm() {
     }
 
     return obj;
+}
+
+var bundleTimeStats = {
+
+};
+
+function getTimeStatsForBundle() {
+    let bundleBtns = document.getElementsByName("role");
+    for (let i = 0; i < bundleBtns.length; i++) {
+        //alert(bundleBtns[i].getAttribute("value"))
+        let url = "../../api/DB/attacksByBundleId/" + bundleBtns[i].getAttribute("value");
+        fetch(url)
+            .then(data => data.json())
+            .then(data => {
+                bundleTimeStats[bundleBtns[i].getAttribute("value")] = data;
+            });
+    }
+}
+
+function displayTimeStatsForBundle(e) {
+    let bundleId = e.target.getAttribute("value");
+    document.getElementById("meanTime").innerHTML = bundleTimeStats[bundleId][0];
+    document.getElementById("medianTime").innerHTML = bundleTimeStats[bundleId][1];
 }
