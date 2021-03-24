@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace MonitoringConsole.Class_Library
 {
-    public class WorkspaceTerminate
+    public class WSStartRequest
     {
-        public string WorkspaceId { get; set; }
+        public List<string> StartWorkspaceList { get; set; }
     }
 }

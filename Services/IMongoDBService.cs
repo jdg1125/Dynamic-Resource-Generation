@@ -20,5 +20,6 @@ namespace MonitoringConsole.Services
         public Task UpdateAttack(State attacklog);
 
         public Task LinkAttack(State attacklog);
+        public Task<List<Attack>> GetAttackByBundleId(string bundleId);
     }
 }

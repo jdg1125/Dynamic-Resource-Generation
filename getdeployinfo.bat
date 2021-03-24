@@ -1,1 +1,0 @@
-rem aws workspaces describe-workspaces > MyJson.json

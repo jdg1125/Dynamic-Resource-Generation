@@ -31,7 +31,7 @@ namespace MonitoringConsole.api
 
         // POST api/<StartWorkspacesController>
         [HttpPost]
-        public async Task Post([FromBody]  StartWorkspace ex)
+        public async Task<StartWorkspacesResponse> Post([FromBody]  WSStartRequest ex)
         {
             AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
             StartWorkspacesRequest swr = new StartWorkspacesRequest();
@@ -42,8 +42,8 @@ namespace MonitoringConsole.api
                 srq.WorkspaceId = item;
                 swr.StartWorkspaceRequests.Add(srq);
             }
-            await client.StartWorkspacesAsync(swr);
-
+            
+            return await client.StartWorkspacesAsync(swr);
         }
 
         // PUT api/<StartWorkspacesController>/5

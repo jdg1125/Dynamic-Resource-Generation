@@ -20,7 +20,7 @@ namespace MonitoringConsole.api
     {
         // POST api/<SetupWorkspaceController>
         [HttpPost]
-        public async Task<string> Post([FromBody] WorkspaceCreate value)
+        public async Task<string> Post([FromBody] WSCreateRequest value)
         {
             AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
             CreateWorkspacesRequest createReq = new CreateWorkspacesRequest();

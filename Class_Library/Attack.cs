@@ -23,6 +23,7 @@ namespace MonitoringConsole.Class_Library
         public double Threat_Level { get; set; }
 
         public ObjectId AttackerId { get; set; }
+        public string BundleId { get; set; }
 
         public Attack()
         {
