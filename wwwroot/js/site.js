@@ -265,16 +265,15 @@ function terminateWorkspaces() {
 
     fetch(url, paramObj)
         .then(data => data.json())
-        .then(data => JSON.stringify(data))
         .then(data => {
             let termResult = document.getElementById("termResult");
             if (data.length != 0) {
-                termResult.innerHTML += "Failed terminate requests: " + "<br />"
+                termResult.innerHTML = "Failed terminate requests: " + "<br />"
                 for (let i = 0; i < data.length; i++)
                     termResult.innerHTML += data[i].workspaceId + "<br />";
             }
             else {
-                termResult.innerHTML += "All terminate requests succeeded";
+                termResult.innerHTML = "All terminate requests succeeded";
             }
 
         })
