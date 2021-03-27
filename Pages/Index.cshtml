@@ -87,14 +87,41 @@
                 </tbody>
             </table>
             <br />
-            <h4>Cost Of Selected: &nbsp;&nbsp;&nbsp;&nbsp;$<span id="deployCost">0.0</span>0 per hour</h4>
+            @*<h4>Cost Of Selected: &nbsp;&nbsp;&nbsp;&nbsp;$<span id="deployCost">0.0</span>0 per hour</h4>*@
             <br />
             <div class="form-list-row">
                 <button id="deployBtn" onclick="DeploySelected()">Deploy Selected</button>
                 <button id="refreshDeployBtn">Refresh <span class="reload">&#x21bb;</span></button>
             </div>
 
+
+            <br />
+            <br />
+
+            <table>
+                <tr>
+                    <th>
+                        Hourly Cost To Deploy:
+                    </th>
+                    <td id="deployCost">
+                        Monthly pricing: $33
+                    </td>
+                </tr>
+                <tr>
+                    <th>Mean Duration Of Attacks From This Resource Type:</th>
+                    <td id="deployMean">Minutes</td>
+                </tr>
+                <tr>
+                    <th>Median Duration Of Attacks From This Resource Type:</th>
+                    <td id="deployMedian">Minutes</td>
+                </tr>
+            </table>
+            @*<h5>Cost To Set Up This WorkSpace: &nbsp;<span id="setupCost">Monthly pricing: $33</span></h5>
+                <h5>Mean Attack Duration Of Attacks Using This Resource Type: &nbsp;<span id="meanTime"></span> &nbsp;Minutes</h5>
+                <h5>Median Attack Duration Of Attacks Using This Resource Type: &nbsp;<span id="medianTime"></span> &nbsp;Minutes</h5>*@
         </div>
+
+
     </div>
 </div>
 
@@ -117,6 +144,19 @@
             }
         }
     </fieldset>
+
+    <fieldset class="form-list">
+        <legend class="form-text-blue">Operating System</legend>
+        <div>
+            <input type="radio" name="OS" value="Windows 10" disabled />
+            <label for="role">Windows 10</label>
+        </div>
+        <div>
+            <input type="radio" name="OS" value="Linux 2" disabled />
+            <label for="role">Linux 2</label>
+        </div>
+    </fieldset>
+
     <br />
     <div id="volumeSizeSelector">
         <label for="volumeSize" class="form-text-blue">Choose root volume & user volume size: </label>

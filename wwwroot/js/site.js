@@ -1,4 +1,5 @@
 
+
 var attackData = {
     attackerIP: "",
     userName: "",
@@ -416,10 +417,19 @@ function updateThreatLevel() {
 }
 
 function togglePageView() {
+    //let myMap = new Map();
+
+    const radioBndls = document.getElementsByName("role");
     document.getElementById("monitorView").classList.toggle("hidden-view");
     if (!document.getElementById("setupView").classList.toggle("hidden-view"))
-        getTimeStatsForBundle();
+        getWorkspacesForBundle().then((data) => {
+            for (let i in data) {
+                //bundleTimeStats[radioBndls[i].value] = 
+            }
+        })
+            .catch((err) => console.error(err));
 }
+
 
 function toggleDeployMenu() {
     document.getElementById("bottomContent").classList.toggle("content-bottom-double");
@@ -576,7 +586,7 @@ function DeploySelected() {
         .then(data => {
             console.log("in deploySelected: " + JSON.stringify(data));
         })
-        
+
 }
 
 
@@ -731,12 +741,12 @@ var bundleTimeStats = {
 };
 
 function getTimeStatsForBundle() {
-    let bundleBtns = document.getElementsByName("role");
+    let bundleBtns = document.getElementsByName("role"); //Make a variable for length and use it in for loop
     for (let i = 0; i < bundleBtns.length; i++) {
         //alert(bundleBtns[i].getAttribute("value"))
         let url = "../../api/DB/attacksByBundleId/" + bundleBtns[i].getAttribute("value");
         fetch(url)
-            .then(data => data.json())
+            .then(data => data.json()) //try to create empty array(list), use promise.all() --> makes results more organized 
             .then(data => {
                 bundleTimeStats[bundleBtns[i].getAttribute("value")] = data;
             });
@@ -744,7 +754,48 @@ function getTimeStatsForBundle() {
 }
 
 function displayTimeStatsForBundle(e) {
-    let bundleId = e.target.getAttribute("value");
-    document.getElementById("meanTime").innerHTML = bundleTimeStats[bundleId][0];
-    document.getElementById("medianTime").innerHTML = bundleTimeStats[bundleId][1];
+    console.log(e);
+    let bundleId = e.target.value;
+    console.log(bundleTimeStats);
+    
+    if (e.target.getAttribute("id") == "deploy") {
+        document.getElementById("deployMean").innerHTML = bundleTimeStats[bundleId][0];
+        document.getElementById("deployMedian").innerHTML = bundleTimeStats[bundleId][1];
+    }
+    else {
+        document.getElementById("meanTime").innerHTML = bundleTimeStats[bundleId][0];
+        document.getElementById("medianTime").innerHTML = bundleTimeStats[bundleId][1];
+    }
 }
+
+function getWorkspacesForBundle() {
+    let bundleBtns = document.getElementsByName("role");
+    var var_holder = bundleBtns.length;
+    var thisArray = [];
+    for (let i = 0; i < var_holder; i++) {
+        let url = "../../api/DB/attacksByBundleId/" + bundleBtns[i].value;
+        thisArray.push(fetch(url));
+    }
+    return new Promise((resolve, reject) => {
+        Promise.all(thisArray)
+            .then((data) => {
+                let newList = [];
+                console.log(data);
+                //let dMean = document.getElementById("deployMean").innerHTML = data[i][0];
+                //let dMedian = document.getElementById("deployMedian").innerHTML = data[i][1];
+
+                for (let i in data) {
+                    json = data[i].json();
+                    newList.push(json);
+                }
+                resolve(newList);
+            }).catch(err => reject(err));
+    });
+
+}
+
+
+//1. Make update methods for each tab (Setup , Deploy,)
+//2. Do pass in updates set in by the user (as arguments)
+//3. Put .catch functions in the methods (we can use it to catch any known errors)
+//4. 
