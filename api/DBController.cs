@@ -134,27 +134,34 @@ namespace MonitoringConsole.api
         }
 
         // GET: api/<DBController>
-        [Route("attacksByBundleId/{id?}")]
-        [HttpGet]
-        public async Task<List<string>> GetAttacksByBundleId(string id)
+        [Route("prevAttackStats/{bundles?}")]
+        [HttpPost]
+        public async Task<List<Bundle>> GetPrevAttackStats([FromBody] List<Bundle> bundles)
         {
-            List<Attack> result = await _context.GetAttackByBundleId(id);
-            TimeSpan mean = new TimeSpan(0, 0, 0);
-            TimeSpan median;
-            TimeSpan[] sortedDurations = new TimeSpan[result.Count];
-            
-            for(int i=0; i< result.Count; i++)
+            foreach (var b in bundles)
             {
-                TimeSpan duration = result[i].End_Time - result[i].Start_Time;
-                sortedDurations[i]=duration;
-                mean += duration;
+                List<Attack> attacks = await _context.GetAttackByBundleId(b.BundleId);
+
+                TimeSpan mean = new TimeSpan(0, 0, 0);
+                TimeSpan median;
+                TimeSpan[] sortedDurations = new TimeSpan[attacks.Count];
+
+                for (int i = 0; i < attacks.Count; i++)
+                {
+                    TimeSpan duration = attacks[i].End_Time - attacks[i].Start_Time;
+                    sortedDurations[i] = duration;
+                    mean += duration;
+                }
+
+                Array.Sort(sortedDurations);
+                mean /= sortedDurations.Length;
+                median = sortedDurations[sortedDurations.Length / 2];
+
+                b.MeanAttackDuration = mean.Minutes.ToString();
+                b.MedianAttackDuration = median.Minutes.ToString();
             }
 
-            Array.Sort(sortedDurations);
-            mean /= sortedDurations.Length;
-            median = sortedDurations[sortedDurations.Length / 2];
-
-            return new List<string>() { mean.TotalMinutes.ToString(), median.TotalMinutes.ToString() };
+            return bundles;
         }
 
         // PUT api/<DBController>/5
