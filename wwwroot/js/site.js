@@ -799,12 +799,15 @@ function getInputsFromForm() {
 
 
 function displayTimeStatsForBundle() {
-    let bundle = bundleTimeStats.filter(b => b.bundleId === this.value);
-
-    if (bundle) {
-        setupMean.innerHTML = bundle[0].meanAttackDuration;
-        setupMedian.innerHTML = bundle[0].medianAttackDuration;
-    }
+    bundleTimeStats.then(data => {
+        let bundle = data.filter(b => b.bundleId === this.value);
+        return bundle;
+    }).then(bundle => {
+        if (bundle[0]) {
+            setupMean.innerHTML = bundle[0].meanAttackDuration;
+            setupMedian.innerHTML = bundle[0].medianAttackDuration;
+        }
+    }).catch(err => console.error(err));
 }
 
 
