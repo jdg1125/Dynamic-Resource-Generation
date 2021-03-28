@@ -7,13 +7,16 @@ namespace MonitoringConsole.Class_Library
 {
     public class Bundle
     {
-        public Bundle(string bundleId, string name)
-        {
-            BundleId = bundleId;
-            Name = name;
-        }
+        //public Bundle(string bundleId, string name)
+        //{
+        //    BundleId = bundleId;
+        //    Name = name;
+        //}
 
         public string BundleId { get; set; }
         public string Name { get; set; }
+
+        public string MeanAttackDuration { get; set; }
+        public string MedianAttackDuration { get; set; }
     }
 }

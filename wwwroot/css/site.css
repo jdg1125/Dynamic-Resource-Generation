@@ -108,7 +108,7 @@ th {
 .content-bottom-double {
     display: grid;
     grid-column-gap: 2rem;
-    grid-template-columns: 60% 40%;
+    grid-template-columns: 40% 60%;
 }
 
 .showBlock {
