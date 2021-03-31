@@ -98,5 +98,41 @@ namespace MonitoringConsole.Services
             return response.FailedRequests;
         }
 
+        public async Task<CreateWorkspacesResponse> CreateWorkspace(WSCreateRequest payload)
+        {
+            CreateWorkspacesRequest createReq = new CreateWorkspacesRequest();
+
+            int rootSize = 80;
+            Int32.TryParse(payload.RootSize, out rootSize);
+            int userSize = 50;
+            Int32.TryParse(payload.UserSize, out userSize);
+            int timeout = 1;
+            Int32.TryParse(payload.Hours, out timeout);
+
+            WorkspaceProperties wsProps = new WorkspaceProperties()
+            {
+                RootVolumeSizeGib = rootSize,
+                RunningMode = new RunningMode(payload.RunMode),
+                UserVolumeSizeGib = userSize,
+            };
+
+            if (payload.RunMode == "AUTO_STOP")
+            {
+                wsProps.RunningModeAutoStopTimeoutInMinutes = timeout * 60;
+            }
+
+            WorkspaceRequest wsReq = new WorkspaceRequest()
+            {
+                BundleId = payload.BundleId,
+                DirectoryId = payload.DirectoryId,
+                UserName = payload.UserName,
+                WorkspaceProperties = wsProps
+            };
+
+            createReq.Workspaces.Add(wsReq);
+
+            return await _wSpaceClient.CreateWorkspacesAsync(createReq);
+        }
+
     }
 }

@@ -65,6 +65,15 @@ namespace MonitoringConsole.api
             return null;
         }
 
+        [Route("workspaceById/{id?}")]
+        [HttpGet]
+        public async Task<Workspace> GetWorkspaceById(string id)
+        {
+            return await _awsConnector.GetWorkspaceById(id);
+
+        }
+
+
         // GET api/<DescribeResourcesController>/bundles
         [Route("bundles")]
         [HttpGet]

@@ -11,7 +11,5 @@ namespace MonitoringConsole.Class_Library
         public string Address { get; set; }
         public string Location { get; set; }
 
-        //public Attacker Attacker { get; set; }
-
     }
 }

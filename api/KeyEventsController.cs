@@ -16,20 +16,20 @@ namespace CreateWorkspaceDemo.api
     {
         private List<string> _messages;
         private List<string> _times;
+        private Pop3Client client;
 
         // GET: api/<KeyEventsController>
         [HttpGet]
-        public List<List<string>> Get()
+        public async Task<List<List<string>>> Get()
         {
-            var client = new Pop3Client();
-            try
+            if((await ConnectAsync()) == false)
             {
-                client.Connect("pop.gmail.com", 995, true);
-                client.Authenticate("josephdavidglassjr@gmail.com", "ThisIs@Password");
-            }
-            catch (OpenPop.Pop3.Exceptions.InvalidLoginException e)
-            {
-                return null; //log the exception?
+                _messages = new List<string>();
+                _times = new List<string>();
+                List<List<string>> empty = new List<List<string>>();
+                empty.Add(_messages);
+                empty.Add(_times);
+                return empty;
             }
 
             var count = client.GetMessageCount();
@@ -68,6 +68,15 @@ namespace CreateWorkspaceDemo.api
                 else
                 {
                     string text = message.MessagePart.GetBodyAsText();
+
+                    if (text.Contains("New Workspace Access Alert. RDP was performed into environment:"))
+                    {
+                        client.DeleteMessage(i);
+                        _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
+                        _messages.Add(text);
+                        break;
+                    }
+
                     if (text != null)
                     {
                         int numCmds = CommandsEntered.Count;
@@ -108,6 +117,28 @@ namespace CreateWorkspaceDemo.api
             CurrLine = 0;
             LogFileName = "";
             HttpContext.Response.StatusCode = 204;
+        }
+
+
+        private Task<bool> ConnectAsync()
+        {
+            return Task.Run(() =>
+            {
+                bool success = true;
+                this.client = new Pop3Client();
+
+               
+                try
+                {
+                    client.Connect("pop.gmail.com", 995, true);
+                    client.Authenticate("josephdavidglassjr@gmail.com", "ThisIs@Password");
+                }
+                catch 
+                {
+                    return false; 
+                }
+                return success;
+            });
         }
 
         private string ParseAWSMessage(string s)
