@@ -17,5 +17,7 @@ namespace MonitoringConsole.Services
         public Task<Workspace> GetWorkspaceById(string id);
 
         public Task<List<FailedWorkspaceChangeRequest>> StopWorkspaces(WSTerminateRequest payload);
+
+        public Task<CreateWorkspacesResponse> CreateWorkspace(WSCreateRequest payload);
     }
 }

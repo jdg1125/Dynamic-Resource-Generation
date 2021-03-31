@@ -9,6 +9,7 @@ using System.IO;
 using MonitoringConsole.Class_Library;
 using MonitoringConsole.Services;
 using MongoDB.Bson;
+using Newtonsoft.Json;
 using static MonitoringConsole.Data.AttackData;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,140 +26,166 @@ namespace MonitoringConsole.api
             _context = context;
         }
 
-        // GET api/<DBController>/"222.111.22.11"
+        // GET api/<DBController>/getAttacker/"222.111.22.11"
         [HttpGet("{id}")]
-        public async Task<Attacker> Get(string id)
+        [Route("getAttacker/{id}")]
+        public async Task<Attacker> GetAttacker(string id)
         {
             Attacker attacker = await _context.GetAttacker(id);
+            if (attacker == null)
+            {
+                attacker = new Attacker()
+                {
+                    Id = "",
+                    IPList = new List<IP>(),
+                    Name = "",
+                    MaxThreatLevel = 0,
+                    Attacks = new List<string>()
+                };
+                attacker.IPList.Add(new IP()
+                {
+                    Address = id,
+                    Location = ""
+                });
+            }
             return attacker;
         }
 
-        // POST api/<DBController>
+        // POST api/<DBController>/saveLog
         [HttpPost]
-        public async Task<State> Post([FromBody] State attackData)
+        [Route("saveLog")]
+        public async Task<SaveLogRequest> SaveLog([FromBody] object json)
         {
-            if (attackData.AttackerId == null || attackData.AttackerId == "")
-            {
-                Attacker attacker = new Attacker();
-                attacker.IPList.Add(new IP()
-                {
-                    Address = attackData.AttackerIP
-                });
-                attacker.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
+            SaveLogRequest request = JsonConvert.DeserializeObject<SaveLogRequest>(json.ToString());
 
-                attacker._id = await _context.AddAttacker(attacker);
-                attackData.AttackerId = attacker._id.ToString();
+            if (request.Attacker.Id == "")
+            {
+                request.Attacker.Id = ObjectId.Empty.ToString();
+                request.Attacker.Id = (await _context.AddAttacker(request.Attacker)).ToString();
             }
             else
             {
-                await _context.UpdateAttacker(new ObjectId(attackData.AttackerId), attackData.PrevMaxThreatLevel);
+                await _context.UpdateAttacker(request);
             }
 
-            if (attackData.AttackId == null || attackData.AttackId == "")
+            if (request.Attack.Id == "")
             {
-                Attack attack = new Attack()
-                {
-                    Start_Time = attackData.StartTime,
-                    End_Time = attackData.EndTime,
-                    CostScore = 1.0m,
-                    Threat_Level = attackData.PrevMaxThreatLevel,
-                    AttackerId = new ObjectId(attackData.AttackerId)
-
-                };
-                attack.Workspaces_Involved.Add(attackData.WorkspaceId);
-                attack._id = await _context.AddAttack(attack);
-                attackData.AttackId = attack._id.ToString();
-
-                await _context.LinkAttack(attackData);
+                request.Attack.Id = ObjectId.Empty.ToString();
+                request.Attack.AttackerId = request.Attacker.Id;
+                request.Attack.Id = (await _context.AddAttack(request.Attack)).ToString();
+                request.Attacker.Attacks.Add(request.Attack.Id);
+                await _context.LinkAttackToAttacker(request);
             }
             else
             {
-                await _context.UpdateAttack(attackData);
+                await _context.UpdateAttack(request);
             }
 
-            return await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes;
+            return request;
+
+
+            //return await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes;
         }
 
-        private async Task<State> SaveKeylogs(State attackData)
-        {
-            List<string> CmdsSinceLastSave = new List<string>();
+        //private async Task<SaveLogRequest> SaveKeylogs(SaveLogRequest attackData)
+        //{
+        //    List<string> CmdsSinceLastSave = new List<string>();
 
-            if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
-            {
-                CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
-                CurrLine = CommandsEntered.Count;
-            }
+        //    if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
+        //    {
+        //        CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
+        //        CurrLine = CommandsEntered.Count;
+        //    }
 
-            if (CmdsSinceLastSave.Count > 0)
-            {
-                if (LogFileName == "")
-                {
-                    StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
-                    fileName.Append("\\Data\\Keylogs\\log_");
-                    fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-                    fileName.Append(".json");
+        //    if (CmdsSinceLastSave.Count > 0)
+        //    {
+        //        if (LogFileName == "")
+        //        {
+        //            StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
+        //            fileName.Append("\\Data\\Keylogs\\log_");
+        //            fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+        //            fileName.Append(".json");
 
-                    LogFileName = fileName.ToString();
-                    attackData.KeyStrokes = CmdsSinceLastSave;
+        //            LogFileName = fileName.ToString();
+        //            attackData.KeyStrokes = CmdsSinceLastSave;
 
-                    using (FileStream createStream = System.IO.File.Create(LogFileName))
-                    {
-                        await JsonSerializer.SerializeAsync(createStream, attackData);
-                    }
-                }
-                else //we only need to update the current log
-                {
-                    StringBuilder jsonString = new StringBuilder();
-                    string buffer = "";
-                    StreamReader reader = new StreamReader(LogFileName);
+        //            using (FileStream createStream = System.IO.File.Create(LogFileName))
+        //            {
+        //                await JsonSerializer.SerializeAsync(createStream, attackData);
+        //            }
+        //        }
+        //        else //we only need to update the current log
+        //        {
+        //            StringBuilder jsonString = new StringBuilder();
+        //            string buffer = "";
+        //            StreamReader reader = new StreamReader(LogFileName);
 
-                    while ((buffer = reader.ReadLine()) != null)
-                        jsonString.Append(buffer);
+        //            while ((buffer = reader.ReadLine()) != null)
+        //                jsonString.Append(buffer);
 
-                    reader.Close();
+        //            reader.Close();
 
-                    State prevState = JsonSerializer.Deserialize<State>(jsonString.ToString());
-                    prevState.KeyStrokes.AddRange(CmdsSinceLastSave);
-                    prevState.EndTime = attackData.EndTime;
-                    prevState.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
+        //            SaveLogRequest prevState = JsonSerializer.Deserialize<SaveLogRequest>(jsonString.ToString());
+        //            prevState.KeyStrokes.AddRange(CmdsSinceLastSave);
+        //            prevState.EndTime = attackData.EndTime;
+        //            prevState.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
 
-                    using (FileStream updateStream = System.IO.File.Create(LogFileName))
-                    {
-                        await JsonSerializer.SerializeAsync(updateStream, prevState);
-                    }
-                    attackData = prevState;
-                }
-            }
+        //            using (FileStream updateStream = System.IO.File.Create(LogFileName))
+        //            {
+        //                await JsonSerializer.SerializeAsync(updateStream, prevState);
+        //            }
+        //            attackData = prevState;
+        //        }
+        //    }
 
-            return attackData;
-        }
+        //    return attackData;
+        //}
 
         // GET: api/<DBController>
         [Route("prevAttackStats/{bundles?}")]
         [HttpPost]
         public async Task<List<Bundle>> GetPrevAttackStats([FromBody] List<Bundle> bundles)
         {
+            if (bundles.Count == 0)
+                return bundles;
+
+            Dictionary<string, List<TimeSpan>> timeStats = new Dictionary<string, List<TimeSpan>>();
             foreach (var b in bundles)
             {
-                List<Attack> attacks = await _context.GetAttackByBundleId(b.BundleId);
+                timeStats.Add(b.BundleId, new List<TimeSpan>());
+            }
 
-                TimeSpan mean = new TimeSpan(0, 0, 0);
-                TimeSpan median;
-                TimeSpan[] sortedDurations = new TimeSpan[attacks.Count];
-
-                for (int i = 0; i < attacks.Count; i++)
+            List<Attack> attacks = await _context.GetAllAttacks();
+            foreach (var att in attacks)
+            {
+                foreach(var ws in att.WorkspacesInvolved)
                 {
-                    TimeSpan duration = attacks[i].End_Time - attacks[i].Start_Time;
-                    sortedDurations[i] = duration;
-                    mean += duration;
+                    if(timeStats.ContainsKey(ws.BundleId))
+                    {
+                        TimeSpan interval = ws.EndTime - ws.StartTime;
+                        timeStats[ws.BundleId].Add(interval);
+                    }
                 }
+            }
 
-                Array.Sort(sortedDurations);
-                mean /= sortedDurations.Length;
-                median = sortedDurations[sortedDurations.Length / 2];
+            foreach(var b in bundles)
+            {
+                TimeSpan mean= TimeSpan.Zero, median=TimeSpan.Zero;
+                timeStats[b.BundleId].Sort();
 
-                b.MeanAttackDuration = mean.Minutes.ToString();
-                b.MedianAttackDuration = median.Minutes.ToString();
+                foreach(var time in timeStats[b.BundleId])
+                {
+                    mean += time;
+
+                }
+                if (timeStats[b.BundleId].Count != 0)
+                {
+                    mean /= timeStats[b.BundleId].Count;
+                    median = timeStats[b.BundleId][timeStats[b.BundleId].Count / 2];
+
+                    b.MeanAttackDuration = mean.Minutes.ToString();
+                    b.MedianAttackDuration = median.Minutes.ToString();
+                }
             }
 
             return bundles;

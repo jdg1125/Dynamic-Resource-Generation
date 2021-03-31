@@ -13,13 +13,17 @@ namespace MonitoringConsole.Services
 
         public Task<Attacker> GetAttacker(string address);
 
-        public Task UpdateAttacker(ObjectId id, double threatLevel);
+        //public Task UpdateAttacker(ObjectId id, double threatLevel);
+
+        public Task UpdateAttacker(SaveLogRequest request);
 
         public Task<ObjectId> AddAttack(Attack attack);
 
-        public Task UpdateAttack(State attacklog);
+        public Task UpdateAttack(SaveLogRequest request);
 
-        public Task LinkAttack(State attacklog);
-        public Task<List<Attack>> GetAttackByBundleId(string bundleId);
+        public Task LinkAttackToAttacker(SaveLogRequest request);
+       // public Task<List<Attack>> GetAttackByBundleId(string bundleId);
+
+        public Task<List<Attack>> GetAllAttacks();
     }
 }

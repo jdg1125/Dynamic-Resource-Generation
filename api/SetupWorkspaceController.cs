@@ -10,6 +10,7 @@ using MonitoringConsole.Class_Library;
 using Amazon.WorkSpaces.Model;
 using Amazon.WorkSpaces;
 using System.Runtime.Serialization;
+using MonitoringConsole.Services;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MonitoringConsole.api
@@ -18,54 +19,22 @@ namespace MonitoringConsole.api
     [ApiController]
     public class SetupWorkspaceController : ControllerBase
     {
-        // POST api/<SetupWorkspaceController>
-        [HttpPost]
-        public async Task<string> Post([FromBody] WSCreateRequest value)
+        private IAWSService _awsConnector;
+        public SetupWorkspaceController(IAWSService awsConnector)
         {
-            AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
-            CreateWorkspacesRequest createReq = new CreateWorkspacesRequest();
-            //createReq.Workspaces = new List<WorkspaceRequest>();
-
-            int rootSize = 80;
-            Int32.TryParse(value.RootSize, out rootSize);
-            int userSize = 50;
-            Int32.TryParse(value.UserSize, out userSize);
-            int timeout = 1;
-            Int32.TryParse(value.Hours, out timeout);
-
-            WorkspaceProperties wsProps = new WorkspaceProperties()
-            {
-                RootVolumeSizeGib = rootSize,
-                RunningMode = new RunningMode(value.RunMode),
-                UserVolumeSizeGib = userSize,
-            };
-
-            if (value.RunMode == "AUTO_STOP")
-            {
-                wsProps.RunningModeAutoStopTimeoutInMinutes = timeout * 60;
-            }
-
-            WorkspaceRequest wsReq = new WorkspaceRequest()
-            {
-                BundleId = value.BundleId,
-                DirectoryId = value.DirectoryId,
-                UserName = value.UserName,
-                WorkspaceProperties = wsProps
-            };
-
-            createReq.Workspaces.Add(wsReq);
-
-            CreateWorkspacesResponse createResponse = await client.CreateWorkspacesAsync(createReq);
-
-
-            string wsId = "Creation Failed";
-            if (createResponse != null && createResponse.PendingRequests.Count > 0)
-                wsId = createResponse.PendingRequests[0].WorkspaceId;
-
-            return wsId;
+            _awsConnector = awsConnector;
         }
 
+        // POST api/<SetupWorkspaceController>
+        [HttpPost]
+        public async Task<Workspace> Post([FromBody] WSCreateRequest request)
+        {
+            CreateWorkspacesResponse response = await _awsConnector.CreateWorkspace(request);
+            if (response != null && response.PendingRequests.Count > 0)
+                return response.PendingRequests[0];
 
+            return null;
+        }
 
     }
 

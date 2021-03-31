@@ -16,8 +16,8 @@ namespace MonitoringConsole.Services
 
         public MongoDBService(DatabaseSettings settings)
         {
-            _client = new MongoClient(settings.ConnectionString);     
-            _db = _client.GetDatabase("DRG_DB");
+            _client = new MongoClient(settings.ConnectionString);
+            _db = _client.GetDatabase("DRG_Test");   //Change back to DRG_DB; make sure to change connection string as well 
         }
 
         public async Task<ObjectId> AddAttacker(Attacker attacker)
@@ -36,7 +36,7 @@ namespace MonitoringConsole.Services
             Attacker result = null;
 
             var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>(
-                "IPList", new BsonDocument { {"Address", address} }
+                "IPList", new BsonDocument { { "Address", address } }
                 );
 
             var resultList = await (await collection.FindAsync(filter)).ToListAsync();
@@ -44,16 +44,15 @@ namespace MonitoringConsole.Services
             if (resultList != null && resultList.Count >= 1)
             {
                 result = BsonSerializer.Deserialize<Attacker>(resultList[0]);
-                result.IdAsString = result._id.ToString();
             }
             return result;
         }
-    
-        public async Task UpdateAttacker(ObjectId id, double threatLevel)
+
+        public async Task UpdateAttacker(SaveLogRequest request)  //List of attacks get updated by LinkAttackToAttacker
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attacker");
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
-            var update = Builders<BsonDocument>.Update.Set("PrevMaxThreatLevel", threatLevel);
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(request.Attacker.Id));
+            var update = Builders<BsonDocument>.Update.Set("MaxThreatLevel", request.Attacker.MaxThreatLevel);
             await collection.UpdateOneAsync(filter, update);
         }
 
@@ -66,35 +65,52 @@ namespace MonitoringConsole.Services
             return (ObjectId)value.GetValue(0);
         }
 
-        public async Task UpdateAttack(State attacklog)
+        public async Task UpdateAttack(SaveLogRequest request)
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackId));
-            var update = Builders<BsonDocument>.Update.Set("End_Time", attacklog.EndTime)
-            .Set("Threat_Level", attacklog.PrevMaxThreatLevel);
-            await collection.UpdateOneAsync(filter, update);
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(request.Attack.Id));
+            var update = Builders<BsonDocument>.Update.Set("WorkspacesInvolved", request.Attack.WorkspacesInvolved)
+            .Set("ThreatLevel", request.Attack.ThreatLevel);
+            var result = await collection.UpdateOneAsync(filter, update);
         }
 
-        public async Task LinkAttack(State attacklog)
+        public async Task LinkAttackToAttacker(SaveLogRequest request)
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attacker");
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(attacklog.AttackerId));
-            var update = Builders<BsonDocument>.Update.Push("Attacks", new ObjectId(attacklog.AttackId));
+            var filter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId(request.Attacker.Id));
+            var update = Builders<BsonDocument>.Update.Push("Attacks", new ObjectId(request.Attack.Id));
             await collection.UpdateOneAsync(filter, update);
         }
 
-        public async Task<List<Attack>> GetAttackByBundleId(string bundleId)
+        //public async Task<List<Attack>> GetAttackByBundleId(string bundleId)
+        //{
+        //    IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
+
+        //    var filter = Builders<BsonDocument>.Filter.Eq("BundleId", bundleId);
+
+        //    var resultList = await (await collection.FindAsync(filter)).ToListAsync();
+        //    List<Attack> attacks = new List<Attack>();
+
+        //    if (resultList != null && resultList.Count >= 1)
+        //    {
+        //        foreach (var result in resultList)
+        //        {
+        //            Attack att = BsonSerializer.Deserialize<Attack>(result);
+        //            attacks.Add(att);
+        //        }
+        //    }
+        //    return attacks;
+        //}
+
+        public async Task<List<Attack>> GetAllAttacks()
         {
             IMongoCollection<BsonDocument> collection = _db.GetCollection<BsonDocument>("Attack");
-
-            var filter = Builders<BsonDocument>.Filter.Eq("BundleId", bundleId);
-
-            var resultList = await (await collection.FindAsync(filter)).ToListAsync();
+            var resultList = await collection.Find(Builders<BsonDocument>.Filter.Empty).ToListAsync();
             List<Attack> attacks = new List<Attack>();
 
             if (resultList != null && resultList.Count >= 1)
             {
-                foreach(var result in resultList)
+                foreach (var result in resultList)
                 {
                     Attack att = BsonSerializer.Deserialize<Attack>(result);
                     attacks.Add(att);
