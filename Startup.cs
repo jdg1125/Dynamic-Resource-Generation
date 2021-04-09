@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
 using MonitoringConsole.Services;
 
 namespace MonitoringConsole
@@ -26,14 +26,15 @@ namespace MonitoringConsole
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<DatabaseSettings>(
-                Configuration.GetSection(nameof(DatabaseSettings)));
+            services.Configure<AppSettings>(
+                Configuration.GetSection(nameof(AppSettings)));
 
-            services.AddSingleton<DatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+            services.AddSingleton<AppSettings>(sp =>
+                sp.GetRequiredService<IOptions<AppSettings>>().Value);
 
             services.AddSingleton<IMongoDBService, MongoDBService>();
             services.AddSingleton<IAWSService, AWSService>();
+            services.AddSingleton<IKeylogService, KeylogService>();
             services.AddRazorPages();
             
         }

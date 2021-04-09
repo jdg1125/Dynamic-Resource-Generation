@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MonitoringConsole.Data
+namespace MonitoringConsole.Models
 {
-    public static class AttackData
+    public static class SessionData
     {
         public static List<string> CommandsEntered = new List<string>();
         public static string Overflow = "";

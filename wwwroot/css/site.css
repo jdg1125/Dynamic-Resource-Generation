@@ -53,6 +53,40 @@ th {
 
 /* Structural classes */
 
+.custom-container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: 100px;
+    margin-left: 100px;
+}
+
+/* play with the below media selector values to get something that looks ok */
+@media (min-width: 576px) {
+    .custom-container {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    .custom-container {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    .custom-container {
+        max-width: 960px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .custom-container {
+        max-width: 1140px;
+    }
+
+}
+
 .toolbar {
     list-style-type: none;
     overflow: hidden;
@@ -255,6 +289,8 @@ th {
 
 /* deployment menu */
 
+
+
 .text-running {
     color: green;
     font-weight: bolder;
@@ -285,4 +321,6 @@ th {
     font-weight: bolder;
 }
 
-
+#deployResourceMenu th {
+    text-align:center;
+}

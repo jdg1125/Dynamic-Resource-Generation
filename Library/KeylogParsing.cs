@@ -1,147 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using OpenPop.Mime;
-using OpenPop.Pop3;
-using System.Text;
-using static MonitoringConsole.Data.AttackData;
+﻿using System.Text;
+using static MonitoringConsole.Models.SessionData;
 
-namespace CreateWorkspaceDemo.api
+namespace MonitoringConsole.Library
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class KeyEventsController : ControllerBase
+    public class KeylogParsing
     {
-        private List<string> _messages;
-        private List<string> _times;
-        private Pop3Client client;
-
-        // GET: api/<KeyEventsController>
-        [HttpGet]
-        public async Task<List<List<string>>> Get()
-        {
-            if((await ConnectAsync()) == false)
-            {
-                _messages = new List<string>();
-                _times = new List<string>();
-                List<List<string>> empty = new List<List<string>>();
-                empty.Add(_messages);
-                empty.Add(_times);
-                return empty;
-            }
-
-            var count = client.GetMessageCount();
-            _messages = new List<string>(count);
-            _times = new List<string>(count);
-
-            for (int i = 1; i <= count; i++)
-            {
-                Message message = client.GetMessage(i);
-
-                if (message.MessagePart.IsMultiPart)
-                {
-                    string text = "";
-
-                    if (message.Headers.From.DisplayName == "AWS IT" && message.Headers.From.Address == "jtn2dsng@gmail.com")
-                    {
-                        try
-                        {
-                            byte[] body = message.MessagePart.MessageParts[1].Body;
-                            if (body != null)
-                                text += Encoding.UTF8.GetString(body, 0, body.Length);
-                        }
-                        catch (Exception e) { } //aws message structure changed - log event?
-
-                        if (text != "")
-                            text = ParseAWSMessage(text);
-
-                        client.DeleteMessage(i);
-                        _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
-                        _messages.Add(text);
-                        break;  //we need to send only this item when we see it to allow browser time to "clean up" between attacks without erasing or misassigning attack data
-                    }
-
-                    _messages.Add(text); //if a multipart message is seen that isn't from AWS SES, count the message, but don't bother capturing it
-                }
-                else
-                {
-                    string text = message.MessagePart.GetBodyAsText();
-
-                    if (text.Contains("New Workspace Access Alert. RDP was performed into environment:"))
-                    {
-                        client.DeleteMessage(i);
-                        _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
-                        _messages.Add(text);
-                        break;
-                    }
-
-                    if (text != null)
-                    {
-                        int numCmds = CommandsEntered.Count;
-                        Overflow = FindCommands(Overflow + text);
-                        int newCmds = CommandsEntered.Count - numCmds;
-                        StringBuilder sb = new StringBuilder();
-
-                        for (int j = CommandsEntered.Count - newCmds; j < CommandsEntered.Count; j++)
-                        {
-                            ParseCmd(j);
-                            sb.Append(CommandsEntered[j]);
-                            sb.Append("<br />");
-                        }
-
-                        _messages.Add(sb.ToString());
-                    }
-                }
-
-                client.DeleteMessage(i);
-                _times.Add(message.Headers.DateSent.ToLocalTime().ToString("G"));
-            }
-
-            List<List<string>> result = new List<List<string>>();
-            result.Add(_messages);
-            result.Add(_times);
-
-            client.Disconnect();
-
-            return result;
-        }
-
-        // PUT api/<KeyEventsController>/5
-        [HttpPut]
-        public void Put()  //empty buffer and keylog "cache" when browser refreshes
-        {
-            Overflow = "";
-            CommandsEntered.Clear();
-            CurrLine = 0;
-            LogFileName = "";
-            HttpContext.Response.StatusCode = 204;
-        }
-
-
-        private Task<bool> ConnectAsync()
-        {
-            return Task.Run(() =>
-            {
-                bool success = true;
-                this.client = new Pop3Client();
-
-               
-                try
-                {
-                    client.Connect("pop.gmail.com", 995, true);
-                    client.Authenticate("josephdavidglassjr@gmail.com", "ThisIs@Password");
-                }
-                catch 
-                {
-                    return false; 
-                }
-                return success;
-            });
-        }
-
-        private string ParseAWSMessage(string s)
+        public static string ParseAWSMessage(string s)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -161,7 +25,9 @@ namespace CreateWorkspaceDemo.api
 
             return sb.ToString();
         }
-        private string FindCommands(string s)
+
+
+        public static string FindCommands(string s)
         {
             StringBuilder sb = new StringBuilder();
             int len = s.Length;
@@ -214,7 +80,8 @@ namespace CreateWorkspaceDemo.api
             return sb.ToString();
         }
 
-        private void ParseCmd(int index)
+
+        public static void ParseCmd(int index)
         {
             int ptr = index;
             string opString = CommandsEntered[ptr];
@@ -239,7 +106,8 @@ namespace CreateWorkspaceDemo.api
             CommandsEntered[index] = cmd;
         }
 
-        private string ProcessUpDown(string opString, ref int ptr)
+
+        private static string ProcessUpDown(string opString, ref int ptr)
         {
             int up = -1, down = -1;
             int index = ptr; //effectively past the bottom of the list - once an UP has been performed, the cmd here is no longer accessible
@@ -270,7 +138,7 @@ namespace CreateWorkspaceDemo.api
             return opString; //the suffix of the string, containing the first non-up/down token char, OR ""
         }
 
-        private void HandleUp(ref string opString, int up, ref int ptr)
+        private static void HandleUp(ref string opString, int up, ref int ptr)
         {
             if (ptr > 0)
                 ptr--;
@@ -283,7 +151,7 @@ namespace CreateWorkspaceDemo.api
                 opString = "";
         }
 
-        private void HandleDown(ref string opString, int down, ref int ptr, int index)
+        private static void HandleDown(ref string opString, int down, ref int ptr, int index)
         {
             if (ptr + 1 < index)
                 ptr++;
@@ -296,7 +164,7 @@ namespace CreateWorkspaceDemo.api
                 opString = "";
         }
 
-        private string ProcessBkspDel(string cmd, string opString)
+        private static string ProcessBkspDel(string cmd, string opString)
         {
             StringBuilder sb = new StringBuilder(cmd);
             int cursor = cmd.Length;
@@ -339,7 +207,7 @@ namespace CreateWorkspaceDemo.api
             return sb.ToString();
         }
 
-        private void ProcessToken(StringBuilder sb, string opString, int i, int j, ref int cursor)
+        private static void ProcessToken(StringBuilder sb, string opString, int i, int j, ref int cursor)
         {
             string sub;
             if (SpecialKeys.Contains(sub = opString.Substring(i, j - i + 1)) == false)
@@ -372,7 +240,6 @@ namespace CreateWorkspaceDemo.api
                 }
             }
         }
-
 
 
     }
