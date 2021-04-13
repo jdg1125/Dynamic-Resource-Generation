@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MonitoringConsole.Class_Library
+namespace MonitoringConsole.Models
 {
     public class WorkspaceResource
     {

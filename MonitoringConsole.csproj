@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Keylogs\" />
+    <Folder Include="Library\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

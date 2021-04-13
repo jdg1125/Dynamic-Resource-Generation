@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.WorkSpaces.Model;
 
-namespace MonitoringConsole.Class_Library
+namespace MonitoringConsole.Models
 {
     public class DeploymentEntry
     {

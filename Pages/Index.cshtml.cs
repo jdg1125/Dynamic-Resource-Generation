@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.IO;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
+using Amazon;
 using Amazon.WorkSpaces;
 using Amazon.WorkSpaces.Model;
 using Amazon.WorkDocs;
@@ -15,49 +12,53 @@ using Amazon.WorkDocs.Model;
 
 namespace MonitoringConsole.Pages
 {
+
     public class IndexModel : PageModel
     {
-        public DescribeWorkspacesResponse result { get; set; }
-        public Dictionary<string, string> bundle_dicts = new Dictionary<string, string>();
-        public DescribeWorkspaceBundlesResponse result2 { get; set; }
-
-        public DescribeUsersResponse  getMyUsernames { get; set; }
+        private readonly AppSettings _settings;
+        public List<WorkspaceBundle> Bundles { get; set; }
         public HashSet<string> Usernames { get; set; }
 
+
         private readonly ILogger<IndexModel> _logger;
-       
+        private AmazonWorkSpacesClient workspaceClient;
+        private AmazonWorkDocsClient workdocsClient;
 
         public string DirectoryId { get; set; }
-        public IndexModel(ILogger<IndexModel> logger)
+
+
+        public IndexModel(ILogger<IndexModel> logger, AppSettings settings)
         {
             _logger = logger;
+            _settings = settings;
+            workspaceClient = new AmazonWorkSpacesClient(_settings.AWSAccessKeyID, _settings.AWSSecretAccessKey, RegionEndpoint.GetBySystemName(_settings.AWSRegion));
+            workdocsClient = new AmazonWorkDocsClient(_settings.AWSAccessKeyID, _settings.AWSSecretAccessKey, RegionEndpoint.GetBySystemName(_settings.AWSRegion));
+            DirectoryId = _settings.AWSDirectoryID;
+            Bundles = new List<WorkspaceBundle>();
+            Usernames = new HashSet<string>();
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            AmazonWorkSpacesClient client = new AmazonWorkSpacesClient();
-            result = await client.DescribeWorkspacesAsync();
-            result2 = await client.DescribeWorkspaceBundlesAsync();
-            AmazonWorkDocsClient wdcs_client = new AmazonWorkDocsClient();
+            var describeBundlesResponse = await workspaceClient.DescribeWorkspaceBundlesAsync();
+            if(describeBundlesResponse != null)
+                Bundles = describeBundlesResponse.Bundles;
 
-            DescribeUsersRequest dur = new DescribeUsersRequest();
-            DirectoryId = dur.OrganizationId = "d-90676026fa";
-            getMyUsernames = await wdcs_client.DescribeUsersAsync(dur);
+            var describeUsersRequest = new DescribeUsersRequest();
+            describeUsersRequest.OrganizationId = DirectoryId;
 
-            Usernames = new HashSet<string>();
-            foreach (var user in getMyUsernames.Users)
+            var describeUsersResponse = await workdocsClient.DescribeUsersAsync(describeUsersRequest);
+            foreach (var user in describeUsersResponse.Users)
                 Usernames.Add(user.Username);
 
-            foreach (var ws in result.Workspaces)
+
+            var describeWorkspacesResponse = await workspaceClient.DescribeWorkspacesAsync();
+            foreach (var ws in describeWorkspacesResponse.Workspaces)
                 if (Usernames.Contains(ws.UserName))
                     Usernames.Remove(ws.UserName);
 
-
-            client.Dispose();
             return Page();
         }
 
-      
-       
     }
 }

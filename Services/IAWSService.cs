@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.WorkSpaces.Model;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
 
 namespace MonitoringConsole.Services
 {
@@ -19,5 +19,7 @@ namespace MonitoringConsole.Services
         public Task<List<FailedWorkspaceChangeRequest>> StopWorkspaces(WSTerminateRequest payload);
 
         public Task<CreateWorkspacesResponse> CreateWorkspace(WSCreateRequest payload);
+
+        public Task<StartWorkspacesResponse> StartWorkspaces(WSStartRequest payload);
     }
 }

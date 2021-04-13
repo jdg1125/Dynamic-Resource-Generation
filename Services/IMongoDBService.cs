@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
 using MongoDB.Bson;
 
 namespace MonitoringConsole.Services

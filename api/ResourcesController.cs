@@ -1,28 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MonitoringConsole.Services;
-using MonitoringConsole.Class_Library;
 using Amazon.WorkSpaces.Model;
+using Microsoft.AspNetCore.Mvc;
+using MonitoringConsole.Models;
+using MonitoringConsole.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MonitoringConsole.api
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class DescribeResourcesController : ControllerBase
+    public class ResourcesController : Controller
     {
         private readonly IAWSService _awsConnector;
 
-        public DescribeResourcesController(IAWSService awsConnector)
+        public ResourcesController(IAWSService awsConnector)
         {
             _awsConnector = awsConnector;
         }
 
-        // GET api/<DescribeResourcesController>/users
+        // GET api/<ResourcesController>/users
         [Route("users")]
         [HttpGet]
         public async Task<List<WorkDocsUser>> GetUsers()
@@ -30,7 +29,7 @@ namespace MonitoringConsole.api
             return await _awsConnector.GetUsers();
         }
 
-        // GET api/<DescribeResourcesController>/workspace
+        // GET api/<ResourcesController>/workspace
         [Route("allWorkspaces")]
         [HttpGet]
         public async Task<List<Workspace>> GetAllWorkspaces()
@@ -73,8 +72,7 @@ namespace MonitoringConsole.api
 
         }
 
-
-        // GET api/<DescribeResourcesController>/bundles
+        // GET api/<ResourcesController>/bundles
         [Route("bundles")]
         [HttpGet]
         public async Task<List<WorkspaceBundle>> GetBundles()
@@ -82,7 +80,7 @@ namespace MonitoringConsole.api
             return await _awsConnector.GetBundles();
         }
 
-        // GET api/<DescribeResourcesController>/bundles
+        // GET api/<ResourcesController>/bundles
         [Route("getDeployable")]
         [HttpGet]
         public async Task<DeploymentEntry> GetDeployTableInfo()
@@ -102,5 +100,34 @@ namespace MonitoringConsole.api
 
             return deployInfo;
         }
+
+        // POST api/<ResourcesController>
+        [Route("Create")]
+        [HttpPost]
+        public async Task<Workspace> Post([FromBody] WSCreateRequest request)
+        {
+            CreateWorkspacesResponse response = await _awsConnector.CreateWorkspace(request);
+            if (response != null && response.PendingRequests.Count > 0)
+                return response.PendingRequests[0];
+
+            return null;
+        }
+
+        // POST api/<ResourcesController>
+        [Route("Start")]
+        [HttpPost]
+        public async Task<StartWorkspacesResponse> Post([FromBody] WSStartRequest request)
+        {
+            return await _awsConnector.StartWorkspaces(request);
+        }
+
+        // POST api/<ResourcesController>
+        [Route("Terminate")]
+        [HttpPost]
+        public async Task<List<FailedWorkspaceChangeRequest>> Post([FromBody] WSTerminateRequest req)
+        {
+            return await _awsConnector.StopWorkspaces(req);
+        }
+
     }
 }

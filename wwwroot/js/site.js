@@ -1,4 +1,3 @@
-
 let attack = {
     id: "",
     threatLevel: 0,
@@ -19,7 +18,7 @@ let startTime = null;
 let timer;
 let isAttribCheckFinished = false;
 let performingCleanup = false;
-let rowCount = 1; //pop client message indexing starts from 1.  
+let rowCount = 1;  
 let threatScore = 0;
 let lastTimeSeen;
 
@@ -116,15 +115,15 @@ let outerEnvLabel = document.getElementById("outerEnvLabel");
 
 
 function initBundleList() {
-    return fetch('api/DescribeResources/bundles');
+    return fetch('api/Resources/bundles');
 }
 
 function initWorkspaceList() {
-    return fetch('api/DescribeResources/allWorkspaces');
+    return fetch('api/Resources/allWorkspaces');
 }
 
 function initUserList() {
-    return fetch('api/DescribeResources/users');
+    return fetch('api/Resources/users');
 }
 
 function initMonitoringConsole() {
@@ -157,6 +156,9 @@ initMonitoringConsole()
         console.log("bundle time stats: " + JSON.stringify(bundleTimeStats));
     })
     .then(() => {
+        refreshDeployTable();
+    })
+    .then(() => {
         return refreshServerState();
     })
     .then(() => {
@@ -169,7 +171,7 @@ initMonitoringConsole()
 //refresh server's "cache" of commands on refresh or on new attack
 
 function refreshServerState() {
-    let url = "../../api/KeyEvents";
+    let url = "../../api/Keylog/";
     let paramObj = {
         method: "PUT",
         headers: {
@@ -186,7 +188,7 @@ let getKeyloggerData = (function () {
     let count = 0;
 
     return function () {
-        let url = '../../api/KeyEvents/';
+        let url = '../../api/Keylog/';
 
         if (!performingCleanup) {  //stall getting more keylogs until attack context has switched
             return fetch(url)
@@ -371,7 +373,7 @@ function setupNewAttack(msg, time) {
 
     let myRequests = [];
 
-    let url = '../../api/DescribeResources/workspaceById/' + wsId;
+    let url = '../../api/Resources/workspaceById/' + wsId;
     myRequests.push(fetch(url));
 
     url = '../../api/DB/getAttacker/' + tmpIP;
@@ -623,7 +625,7 @@ function displayTerminateOptions() {
            
             outerEnvLabel.innerHTML = outerWS[0].userName;
 
-            url = '../../api/DescribeResources/availWorkspaces';
+            url = '../../api/Resources/availWorkspaces';
             let wsList;
             fetch(url)
                 .then(data => data.json())
@@ -674,7 +676,7 @@ function terminateWorkspaces() {
             wsList.push(elem.getAttribute("value"));
     }
 
-    let url = '../../api/TerminateWorkspace/';
+    let url = '../../api/Resources/Terminate/';
     let paramObj = {
         method: "POST",
         headers: {
@@ -731,7 +733,7 @@ function toggleDeployMenu() {
 
 
 function refreshDeployTable() {
-    let url = '../../api/DescribeResources/getDeployable';
+    let url = '../../api/Resources/getDeployable';
     fetch(url)
         .then(data => data.json())
         .then(data => makeDeployTable(data))
@@ -816,17 +818,23 @@ function assignBundleTimeStats(id, mean, median) {
 }
 
 function assignCostForWorkspace(ws, cost) {
-    let rootSize = ws.workspaceProperties.rootVolumeSizeGib;
-    let userSize = ws.workspaceProperties.userVolumeSizeGib;
-    let runningMode = ws.workspaceProperties.runningMode;
-    let value = workspacePricingTree[rootSize][userSize][runningMode.value];
-    console.log(workspacePricingTree[rootSize][userSize][runningMode.value]);
-    console.log(runningMode.value);
-    if (value.length == 1) {
-        cost.innerHTML = "$" + value[0] + " monthly (already incurred)";
-    }
-    else {
-        cost.innerHTML = "$" + value[0] + " monthly (already incurred), plus $" + value[1] + " per hour";
+    if (ws.workspaceProperties) {  //for newly created workspaces, this is null 
+        let rootSize = ws.workspaceProperties.rootVolumeSizeGib;
+        let userSize = ws.workspaceProperties.userVolumeSizeGib;
+        let runningMode = ws.workspaceProperties.runningMode;
+
+        if (!rootSize || !userSize || !runningMode) //for newly created workspaces, these can be null
+            return;
+
+        let value = workspacePricingTree[rootSize][userSize][runningMode.value];
+        console.log(workspacePricingTree[rootSize][userSize][runningMode.value]);
+        console.log(runningMode.value);
+        if (value.length == 1) {
+            cost.innerHTML = "$" + value[0] + "/month";
+        }
+        else {
+            cost.innerHTML = "$" + value[0] + "/month + $" + value[1] + "/hour";
+        }
     }
 }
 
@@ -851,7 +859,7 @@ function deploySelected() {
             myList.push(deployable[i].getAttribute("value"));
         }
     }
-    let url = '../../api/StartWorkspaces/';
+    let url = '../../api/Resources/Start/';
     let paramObj = {
         method: "POST",
         headers: {
@@ -890,25 +898,25 @@ function configWorkspaceCost() {
             if (chosenRunMode.getAttribute("value") == "ALWAYS_ON")
                 setupCost.innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[0]["flat-monthly"];
             else
-                setupCost.innerHTML = "$" + myWorkspacePrices[0]["monthly"] + " per month and " + "$" + myWorkspacePrices[0]["hourly"] + " hourly";
+                setupCost.innerHTML = "$" + myWorkspacePrices[0]["monthly"] + "/month + " + "$" + myWorkspacePrices[0]["hourly"] + "/hour";
             break;
         case "volPair2":
             if (chosenRunMode.getAttribute("value") == "ALWAYS_ON")
                 setupCost.innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[1]["flat-monthly"];
             else
-                setupCost.innerHTML = "$" + myWorkspacePrices[1]["monthly"] + " per month and " + "$" + myWorkspacePrices[1]["hourly"] + " hourly";
+                setupCost.innerHTML = "$" + myWorkspacePrices[1]["monthly"] + "/month + " + "$" + myWorkspacePrices[1]["hourly"] + "/hour";
             break;
         case "volPair3":
             if (chosenRunMode.getAttribute("value") == "ALWAYS_ON")
                 setupCost.innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[2]["flat-monthly"];
             else
-                setupCost.innerHTML = "$" + myWorkspacePrices[2]["monthly"] + " per month and " + "$" + myWorkspacePrices[2]["hourly"] + " hourly";
+                setupCost.innerHTML = "$" + myWorkspacePrices[2]["monthly"] + "/month + " + "$" + myWorkspacePrices[2]["hourly"] + "/hour";
             break;
         case "volPair4":
             if (chosenRunMode.getAttribute("value") == "ALWAYS_ON")
                 setupCost.innerHTML = "Monthly Pricing: " + "$" + myWorkspacePrices[3]["flat-monthly"];
             else
-                setupCost.innerHTML = "$" + myWorkspacePrices[3]["monthly"] + " per month and " + "$" + myWorkspacePrices[3]["hourly"] + " hourly";
+                setupCost.innerHTML = "$" + myWorkspacePrices[3]["monthly"] + "/month + " + "$" + myWorkspacePrices[3]["hourly"] + "/hour";
             break;
     }
 }
@@ -921,7 +929,7 @@ function setupWorkspace() {
 
     let bodyObj = getInputsFromForm();
 
-    let url = '../../api/SetupWorkspace/';
+    let url = '../../api/Resources/Create/';
     let paramObj = {
         method: "POST",
         headers: {
@@ -1026,7 +1034,8 @@ saveLogBtn.addEventListener("click", () => {
 setupNavBtn.addEventListener("click", togglePageView);
 
 
-deployNavBtn.addEventListener("click", toggleDeployMenu);
+//deployNavBtn.addEventListener("click", toggleDeployMenu);
+
 refreshDeployBtn.addEventListener("click", refreshDeployTable);
 
 for (let i = 0; i < runningModeBtns.length; i++) {

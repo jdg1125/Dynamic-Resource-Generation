@@ -5,16 +5,16 @@
 }
 
 <nav>
-    <ul class="toolbar container" id="buttons">
+    <ul class="toolbar custom-container" id="buttons">
         <li><span id="setup">Set Up WorkSpaces</span></li>
-        <li><span id="deploy">Deploy WorkSpaces</span></li>
+        @*<li><span id="deploy">Deploy WorkSpaces</span></li>*@
         <li><span id="saveLog">Save Log</span></li>
         <li><span id="terminate">Terminate Environment</span></li>
     </ul>
 </nav>
 
 <div class="page-wrapper-grid" id="monitorView">
-    <div class="container content-top">
+    <div class="custom-container content-top">
         <div class="top-row-1">
             <br />
             <h1>Attack Monitoring Console</h1>
@@ -57,35 +57,36 @@
 
 
 
-    <div class="container" id="bottomContent">
-
+    <div class="custom-container content-bottom-double" id="bottomContent">
         <div class="monitorSpace">
             <table id="displayArea">
                 <thead>
                     <tr>
                         <th>Keystrokes</th>
-                        <th>Date & Time</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody id="insertKeylogs">
                 </tbody>
             </table>
         </div>
-        <div class="hidden-view" id="deployResourceMenu">
+        <div id="deployResourceMenu">
             <h4>Deploy Resources</h4>
             <br />
             <table>
-                <thead>
-                    <tr>
-                        <th>Role</th>
-                        <th>Username</th>
-                        <th>Status</th>
-                        <th>Mean Attack Duration For This Resource Type</th>
-                        <th>Median Attack Duration For This Resource Type</th>
-                        <th>Cost To Deploy</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                </thead>
+                <colgroup span="2"></colgroup>
+                <tr>
+                    <th rowspan="2">Role</th>
+                    <th rowspan="2">Username</th>
+                    <th rowspan="2">Status</th>
+                    <th rowspan="1" colspan="2" scope="colgroup">Attack Duration History</th>
+                    <th rowspan="2">Deploy Cost</th>
+                    <th rowspan="2">&nbsp;</th>
+                </tr>
+                <tr>
+                    <th scope="col">Mean</th>
+                    <th scope="col">Median</th>
+                </tr>
                 <tbody id="deployTable">
                 </tbody>
             </table>
@@ -101,7 +102,7 @@
     </div>
 </div>
 
-<div class="container hidden-view" id="setupView">
+<div class="custom-container hidden-view" id="setupView">
     <br />
     <h1>Setup WorkSpaces</h1>
     <br />
@@ -111,7 +112,7 @@
     <fieldset class="form-list">
         <legend class="form-text-blue">WorkSpace Image</legend>
         @{
-            foreach (var item in Model.result2.Bundles)
+            foreach (var item in Model.Bundles)
             {
                 <div>
                     <input type="radio" name="role" value="@item.BundleId" />
@@ -213,7 +214,7 @@
 
 <div class="popup" id="popup_terminate">
     <div class="overlay"></div>
-    <div class="content container">
+    <div class="content custom-container">
         <div class="close-btn" onclick="togglePopup()">&times;</div>
         <div id="terminateForm" class="form-list">
             <h4>Select the WorkSpaces to terminate:</h4>

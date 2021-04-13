@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Bson;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
 using MongoDB.Bson.Serialization;
 
 namespace MonitoringConsole.Services
@@ -14,9 +14,9 @@ namespace MonitoringConsole.Services
         private readonly MongoClient _client;
         private readonly IMongoDatabase _db;
 
-        public MongoDBService(DatabaseSettings settings)
+        public MongoDBService(AppSettings settings)
         {
-            _client = new MongoClient(settings.ConnectionString);
+            _client = new MongoClient(settings.DBConnectionString);
             _db = _client.GetDatabase("DRG_Test");   //Change back to DRG_DB; make sure to change connection string as well 
         }
 

@@ -2,40 +2,42 @@
 using Amazon.WorkDocs.Model;
 using Amazon.WorkSpaces;
 using Amazon.WorkSpaces.Model;
-using MonitoringConsole.Class_Library;
+using MonitoringConsole.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MonitoringConsole.Models;
+using Amazon;
 
 namespace MonitoringConsole.Services
 {
     public class AWSService : IAWSService
     {
-        private AmazonWorkSpacesClient _wSpaceClient;
-        private AmazonWorkDocsClient _wDocsClient;
+        private AmazonWorkSpacesClient _workspaceClient;
+        private AmazonWorkDocsClient _workdocsClient;
         private static String _directoryId;
 
-        public AWSService()
+        public AWSService(AppSettings settings)
         {
-            _wSpaceClient = new AmazonWorkSpacesClient();
-            _wDocsClient = new AmazonWorkDocsClient();
+            _workspaceClient = new AmazonWorkSpacesClient(settings.AWSAccessKeyID, settings.AWSSecretAccessKey, RegionEndpoint.GetBySystemName(settings.AWSRegion)); 
+            _workdocsClient = new AmazonWorkDocsClient(settings.AWSAccessKeyID, settings.AWSSecretAccessKey, RegionEndpoint.GetBySystemName(settings.AWSRegion));
         }
         public async Task<List<Workspace>> GetWorkspaces()
         {
-            DescribeWorkspacesResponse response = await _wSpaceClient.DescribeWorkspacesAsync();
+            DescribeWorkspacesResponse response = await _workspaceClient.DescribeWorkspacesAsync();
             return response.Workspaces;
         }
         public async Task<List<WorkspaceBundle>> GetBundles()
         {
-            DescribeWorkspaceBundlesResponse response = await _wSpaceClient.DescribeWorkspaceBundlesAsync();
+            DescribeWorkspaceBundlesResponse response = await _workspaceClient.DescribeWorkspaceBundlesAsync();
             return response.Bundles;
         }
         public async Task<List<WorkDocsUser>> GetUsers()
         {
             if (_directoryId == null)
             {
-                DescribeWorkspaceDirectoriesResponse response = await _wSpaceClient.DescribeWorkspaceDirectoriesAsync();
+                DescribeWorkspaceDirectoriesResponse response = await _workspaceClient.DescribeWorkspaceDirectoriesAsync();
                 if (response.Directories.Count == 0)
                     return null;
                 _directoryId = response.Directories[0].DirectoryId;
@@ -43,7 +45,7 @@ namespace MonitoringConsole.Services
 
             DescribeUsersRequest request = new DescribeUsersRequest();
             request.OrganizationId = _directoryId;   //fix this not to be hardcoded - use static variable
-            DescribeUsersResponse userResponse = await _wDocsClient.DescribeUsersAsync(request);
+            DescribeUsersResponse userResponse = await _workdocsClient.DescribeUsersAsync(request);
 
             List<Workspace> wsResponse = await GetWorkspaces();
 
@@ -74,7 +76,7 @@ namespace MonitoringConsole.Services
         {
             DescribeWorkspacesRequest request = new DescribeWorkspacesRequest();
             request.WorkspaceIds.Add(id);
-            DescribeWorkspacesResponse response = await _wSpaceClient.DescribeWorkspacesAsync(request);
+            DescribeWorkspacesResponse response = await _workspaceClient.DescribeWorkspacesAsync(request);
 
             if (response.Workspaces.Count > 0)
                 return response.Workspaces[0];
@@ -94,7 +96,7 @@ namespace MonitoringConsole.Services
                 request.StopWorkspaceRequests.Add(sReq);
             }
 
-            StopWorkspacesResponse response = await _wSpaceClient.StopWorkspacesAsync(request);
+            StopWorkspacesResponse response = await _workspaceClient.StopWorkspacesAsync(request);
             return response.FailedRequests;
         }
 
@@ -131,7 +133,22 @@ namespace MonitoringConsole.Services
 
             createReq.Workspaces.Add(wsReq);
 
-            return await _wSpaceClient.CreateWorkspacesAsync(createReq);
+            return await _workspaceClient.CreateWorkspacesAsync(createReq);
+        }
+
+        public async Task<StartWorkspacesResponse> StartWorkspaces(WSStartRequest payload)
+        { 
+            var startWorkspacesRequest = new StartWorkspacesRequest();
+            startWorkspacesRequest.StartWorkspaceRequests = new List<StartRequest>();
+
+            foreach (var item in payload.StartWorkspaceList)
+            {
+                var startRequest = new StartRequest();
+                startRequest.WorkspaceId = item;
+                startWorkspacesRequest.StartWorkspaceRequests.Add(startRequest);
+            }
+
+            return await _workspaceClient.StartWorkspacesAsync(startWorkspacesRequest);
         }
 
     }
