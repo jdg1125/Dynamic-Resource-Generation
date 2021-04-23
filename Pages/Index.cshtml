@@ -5,7 +5,7 @@
 }
 
 <nav>
-    <ul class="toolbar custom-container" id="buttons">
+    <ul class="toolbar container" id="buttons">
         <li><span id="setup">Set Up WorkSpaces</span></li>
         @*<li><span id="deploy">Deploy WorkSpaces</span></li>*@
         <li><span id="saveLog">Save Log</span></li>
@@ -14,7 +14,7 @@
 </nav>
 
 <div class="page-wrapper-grid" id="monitorView">
-    <div class="custom-container content-top">
+    <div class="container content-top">
         <div class="top-row-1">
             <br />
             <h1>Attack Monitoring Console</h1>
@@ -48,7 +48,7 @@
             <div class="content-right">
                 <h3>Threat Level: <span id="threatText"></span></h3>
                 <div class="progress custom-progress" id="progressWrapper">
-                    <div class="progress-bar custom-progress" id="threatIndicator">
+                    <div class="progress-bar " id="threatIndicator">
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
 
 
 
-    <div class="custom-container content-bottom-double" id="bottomContent">
+    <div class="container content-bottom-double" id="bottomContent">
         <div class="monitorSpace">
             <table id="displayArea">
                 <thead>
@@ -102,7 +102,7 @@
     </div>
 </div>
 
-<div class="custom-container hidden-view" id="setupView">
+<div class="container hidden-view" id="setupView">
     <br />
     <h1>Setup WorkSpaces</h1>
     <br />
@@ -214,7 +214,7 @@
 
 <div class="popup" id="popup_terminate">
     <div class="overlay"></div>
-    <div class="content custom-container">
+    <div class="content container">
         <div class="close-btn" onclick="togglePopup()">&times;</div>
         <div id="terminateForm" class="form-list">
             <h4>Select the WorkSpaces to terminate:</h4>

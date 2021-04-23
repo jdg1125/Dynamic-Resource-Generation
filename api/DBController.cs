@@ -11,6 +11,7 @@ using MonitoringConsole.Services;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using static MonitoringConsole.Models.SessionData;
+using System.Net.Http;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -42,6 +43,7 @@ namespace MonitoringConsole.api
                     MaxThreatLevel = 0,
                     Attacks = new List<string>()
                 };
+
                 attacker.IPList.Add(new IP()
                 {
                     Address = id,
@@ -158,9 +160,9 @@ namespace MonitoringConsole.api
             List<Attack> attacks = await _context.GetAllAttacks();
             foreach (var att in attacks)
             {
-                foreach(var ws in att.WorkspacesInvolved)
+                foreach (var ws in att.WorkspacesInvolved)
                 {
-                    if(timeStats.ContainsKey(ws.BundleId))
+                    if (timeStats.ContainsKey(ws.BundleId))
                     {
                         TimeSpan interval = ws.EndTime - ws.StartTime;
                         timeStats[ws.BundleId].Add(interval);
@@ -168,12 +170,12 @@ namespace MonitoringConsole.api
                 }
             }
 
-            foreach(var b in bundles)
+            foreach (var b in bundles)
             {
-                TimeSpan mean= TimeSpan.Zero, median=TimeSpan.Zero;
+                TimeSpan mean = TimeSpan.Zero, median = TimeSpan.Zero;
                 timeStats[b.BundleId].Sort();
 
-                foreach(var time in timeStats[b.BundleId])
+                foreach (var time in timeStats[b.BundleId])
                 {
                     mean += time;
 

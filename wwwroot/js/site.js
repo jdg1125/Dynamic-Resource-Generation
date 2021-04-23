@@ -363,10 +363,10 @@ function setupNewAttack(msg, time) {
     let s = msg.substring(39);
     let tmpIP = s.substring(0, s.indexOf(' '));
 
-    attacker.ipList.push({
-        address: tmpIP,
-        location: ""
-    });
+    //attacker.ipList.push({
+    //    address: tmpIP,
+    //    location: ""
+    //});
 
     s = s.substring(tmpIP.length + 1);
     let wsId = s.substring(0, s.indexOf(' '));
@@ -379,10 +379,13 @@ function setupNewAttack(msg, time) {
     url = '../../api/DB/getAttacker/' + tmpIP;
     myRequests.push(fetch(url));
 
+    url = 'https://ip.nf/' + tmpIP + '.json';      //gets location info for attacker ip address
+    myRequests.push(fetch(url));
+
     return new Promise((resolve, reject) => {
         Promise.all(myRequests).then(responses => {
             console.log(responses)
-            Promise.all([responses[0].json(), responses[1].json()])
+            Promise.all([responses[0].json(), responses[1].json(), responses[2].json()])
                 .then(data => {
                     attack.workspacesInvolved.push({
                         workspaceId: wsId,
@@ -397,6 +400,11 @@ function setupNewAttack(msg, time) {
                     terminateNavBtn.addEventListener("click", togglePopup);                //we don't want to terminate an attack until one already exists
 
                     attacker = data[1];
+
+                    if (attacker.id === "") {  
+                        attacker.ipList[0].location = data[2].ip.city + ", " + data[2].ip.post_code + ", " + data[2].ip.country_code;
+                    }
+
                     console.log("in getAttacker " + JSON.stringify(attacker));
                     initThreatScore(data[1]);
 
@@ -1009,7 +1017,13 @@ function displayTimeStatsForBundle() {
     }
 }
 
+//function to dynamically update the values for the customContainer css class
 
+function getWindowSize() {
+    let width = window.innerWidth;
+    width *= 0.90;
+    document.documentElement.style.setProperty('--container-width', width + 'px');
+}
 
 
 //Event listeners
@@ -1060,3 +1074,4 @@ for (let i = 0; i < roleBtnList.length; i++) {
     roleBtnList[i].addEventListener("click", displayTimeStatsForBundle);
 }
 
+window.addEventListener("resize", getWindowSize);

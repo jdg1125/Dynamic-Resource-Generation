@@ -8,10 +8,11 @@
     --text-color-white: #ffffff;
     --thermometer-background: #008000;
     --progress-width: 0%;
+    --container-width: 0%;
 }
 
 html {
-    font-size: 14px;
+    font-size: 18px;   /* 14px */
     font-family: 'Lato', sans-serif;
     position: relative;
     min-height: 100%;
@@ -19,7 +20,7 @@ html {
 
 @media (min-width: 768px) {
     html {
-        font-size: 16px;
+        font-size: 20px;   /*  16px */
     }
 }
 
@@ -34,6 +35,7 @@ h1, h2, h3, h4, h5, h6 {
 
 nav {
     background-color: #316de5;
+    width: 100%;
 }
 
 td, th {
@@ -54,37 +56,8 @@ th {
 /* Structural classes */
 
 .custom-container {
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: 100px;
-    margin-left: 100px;
-}
-
-/* play with the below media selector values to get something that looks ok */
-@media (min-width: 576px) {
-    .custom-container {
-        max-width: 540px;
-    }
-}
-
-@media (min-width: 768px) {
-    .custom-container {
-        max-width: 720px;
-    }
-}
-
-@media (min-width: 992px) {
-    .custom-container {
-        max-width: 960px;
-    }
-}
-
-@media (min-width: 1200px) {
-    .custom-container {
-        max-width: 1140px;
-    }
-
+    width: var(--container-width);
+    margin: 0 auto 0 auto;
 }
 
 .toolbar {
@@ -142,7 +115,7 @@ th {
 .content-bottom-double {
     display: grid;
     grid-column-gap: 2rem;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 50% 50%;
 }
 
 .showBlock {
@@ -163,7 +136,7 @@ th {
 #displayArea {
     margin: 0 30px 30px 0;
     background-color: white;
-    font-size: 18px;
+    font-size: 22px;   /* 18px */
 }
 
 /* popup */
@@ -246,6 +219,10 @@ th {
     border: 2px solid black;
 }
 
+.custom-progress {
+    width: 100%;
+}
+
 #threatIndicator {
     height: 30px;
     padding: 5px;
@@ -262,7 +239,7 @@ th {
 
 .form-text-blue {
     color: #316de5;
-    font-size: 18pt;
+    font-size: 20pt;  /* 18pt */
 }
 
 .form-list-row {
