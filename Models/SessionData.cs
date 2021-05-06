@@ -9,7 +9,6 @@ namespace MonitoringConsole.Models
     {
         public static List<string> CommandsEntered = new List<string>();
         public static string Overflow = "";
-        public static int CurrLine = 0;
         public static string LogFileName = "";
         public static HashSet<string> IgnoredKeys = new HashSet<string>()
         {

@@ -2,7 +2,6 @@
 using Amazon.WorkDocs.Model;
 using Amazon.WorkSpaces;
 using Amazon.WorkSpaces.Model;
-using MonitoringConsole.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
