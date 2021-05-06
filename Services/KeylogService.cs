@@ -60,7 +60,7 @@ namespace MonitoringConsole.Services
                             text = KeylogParsing.ParseAWSMessage(text);
 
                         _client.DeleteMessage(i);
-                        times.Add(msg.Headers.DateSent.ToLocalTime().ToString("G"));
+                        times.Add(msg.Headers.DateSent.ToLocalTime().ToString("MM-dd-yyyy HH:MM"));   //"G"
                         messages.Add(text);
                         break;  //we need to send only this item when we see it to allow browser time to "clean up" between attacks without erasing or misassigning attack data
                     }
@@ -74,7 +74,7 @@ namespace MonitoringConsole.Services
                     if (text.Contains("New Workspace Access Alert. RDP was performed into environment:"))
                     {
                         _client.DeleteMessage(i);
-                        times.Add(msg.Headers.DateSent.ToLocalTime().ToString("G"));
+                        times.Add(msg.Headers.DateSent.ToLocalTime().ToString("MM-dd-yyyy HH:MM"));   //"G"
                         messages.Add(text);
                         break;
                     }
@@ -98,7 +98,7 @@ namespace MonitoringConsole.Services
                 }
 
                 _client.DeleteMessage(i);
-                times.Add(msg.Headers.DateSent.ToLocalTime().ToString("G"));
+                times.Add(msg.Headers.DateSent.ToLocalTime().ToString("MM-dd-yyyy HH:MM"));   //"G"
             }
 
             List<List<string>> result = new List<List<string>>();
