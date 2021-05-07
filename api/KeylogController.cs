@@ -33,7 +33,6 @@ namespace CreateWorkspaceDemo.api
         {
             Overflow = "";
             CommandsEntered.Clear();
-            CurrLine = 0;
             LogFileName = "";
             HttpContext.Response.StatusCode = 204;
         }

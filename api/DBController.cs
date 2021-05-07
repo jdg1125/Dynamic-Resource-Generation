@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text.Json;
 using System.Text;
 using System.IO;
 using MonitoringConsole.Models;
@@ -12,6 +11,7 @@ using MongoDB.Bson;
 using Newtonsoft.Json;
 using static MonitoringConsole.Models.SessionData;
 using System.Net.Http;
+using MonitoringConsole.Library;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -83,65 +83,13 @@ namespace MonitoringConsole.api
                 await _context.UpdateAttack(request);
             }
 
-            return request;
+            //return request;
 
 
-            //return await SaveKeylogs(attackData); //saves keylogs to json file on disk and populates attackData.KeyStrokes;
+            return await KeylogSaving.SaveKeylogs(request); //saves keylogs to json file on disk 
         }
 
-        //private async Task<SaveLogRequest> SaveKeylogs(SaveLogRequest attackData)
-        //{
-        //    List<string> CmdsSinceLastSave = new List<string>();
-
-        //    if (CurrLine < CommandsEntered.Count) //CurrLine holds the spot of the next command to be saved in the keylog json file
-        //    {
-        //        CmdsSinceLastSave = CommandsEntered.GetRange(CurrLine, CommandsEntered.Count - CurrLine);
-        //        CurrLine = CommandsEntered.Count;
-        //    }
-
-        //    if (CmdsSinceLastSave.Count > 0)
-        //    {
-        //        if (LogFileName == "")
-        //        {
-        //            StringBuilder fileName = new StringBuilder(Environment.CurrentDirectory);
-        //            fileName.Append("\\Data\\Keylogs\\log_");
-        //            fileName.Append(DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-        //            fileName.Append(".json");
-
-        //            LogFileName = fileName.ToString();
-        //            attackData.KeyStrokes = CmdsSinceLastSave;
-
-        //            using (FileStream createStream = System.IO.File.Create(LogFileName))
-        //            {
-        //                await JsonSerializer.SerializeAsync(createStream, attackData);
-        //            }
-        //        }
-        //        else //we only need to update the current log
-        //        {
-        //            StringBuilder jsonString = new StringBuilder();
-        //            string buffer = "";
-        //            StreamReader reader = new StreamReader(LogFileName);
-
-        //            while ((buffer = reader.ReadLine()) != null)
-        //                jsonString.Append(buffer);
-
-        //            reader.Close();
-
-        //            SaveLogRequest prevState = JsonSerializer.Deserialize<SaveLogRequest>(jsonString.ToString());
-        //            prevState.KeyStrokes.AddRange(CmdsSinceLastSave);
-        //            prevState.EndTime = attackData.EndTime;
-        //            prevState.PrevMaxThreatLevel = attackData.PrevMaxThreatLevel;
-
-        //            using (FileStream updateStream = System.IO.File.Create(LogFileName))
-        //            {
-        //                await JsonSerializer.SerializeAsync(updateStream, prevState);
-        //            }
-        //            attackData = prevState;
-        //        }
-        //    }
-
-        //    return attackData;
-        //}
+        
 
         // GET: api/<DBController>
         [Route("prevAttackStats/{bundles?}")]
