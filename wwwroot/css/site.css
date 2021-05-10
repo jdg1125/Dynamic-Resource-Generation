@@ -12,7 +12,7 @@
 }
 
 html {
-    font-size: 18px;   /* 14px */
+    font-size: 14px;   
     font-family: 'Lato', sans-serif;
     position: relative;
     min-height: 100%;
@@ -20,7 +20,7 @@ html {
 
 @media (min-width: 768px) {
     html {
-        font-size: 20px;   /*  16px */
+        font-size: 16px;   
     }
 }
 
@@ -136,7 +136,7 @@ th {
 #displayArea {
     margin: 0 30px 30px 0;
     background-color: white;
-    font-size: 22px;   /* 18px */
+    font-size: 18px;   
 }
 
 /* popup */
@@ -239,7 +239,7 @@ th {
 
 .form-text-blue {
     color: #316de5;
-    font-size: 20pt;  /* 18pt */
+    font-size: 18pt;  
 }
 
 .form-list-row {
