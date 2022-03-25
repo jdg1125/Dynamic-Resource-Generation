@@ -4,6 +4,6 @@ An overview describing the motivations for and some of the goals of the project 
 https://www.augusta.edu/ccs/documents/dynamic-resource-generation-2020_sdp.pdf
 
 If the link above is broken you can find the same document, named ProjectOverview.pdf, in the repo's root directory, in the Documentation folder. 
-Also contained in this folder is the document, RequirementsAnalysis.pdf, which gives a high level overview of the system. 
+Also contained in this folder are the documents RequirementsAnalysis.pdf and DRG_User_Manual.pdf, which provide a high level overview and documentation for the system. 
 
 The system leverages a number of AWS services: CloudWatch, Directory Service, EC2, Lambda, WorkSpaces, and WorkDocs. Our sponsor, AnaVation, LLC, was kind enough to fund our usage of these services for the duration of the project. Without active users, it is infeasible to continue funding this project myself, so the code and documentation here are mostly for demonstrative purposes. 
